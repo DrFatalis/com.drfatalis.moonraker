@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "uiComponent": "sensor",
+    "units": "%",
+    "title": {
+        "en": "Completion (layer)"
+    },
+    "getable": true,
+    "icon": "/drivers/printer/assets/job_completion_layer.svg"
+}

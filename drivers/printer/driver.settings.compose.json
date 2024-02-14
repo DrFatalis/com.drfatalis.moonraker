@@ -1,0 +1,25 @@
+[
+    {
+      "id": "name",
+      "type": "text",
+      "label": { "en": "Name" },
+      "value": "Ender3",
+      "hint": { "en": "The name of the printer." }
+    },
+    {
+        "id": "url",
+        "type": "text",
+        "label": { "en": "URL" },
+        "value": "192.168.0.xxx:7125",
+        "hint": { "en": "Moonraker server URL" }
+      },
+      {
+        "id": "pollingRate",
+        "type": "number",
+        "label": { "en": "Polling rate" },
+        "value": 30,
+        "min": 5,
+        "max": 600,
+        "units": { "en": "seconds" }
+      }
+  ]

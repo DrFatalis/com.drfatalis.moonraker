@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "uiComponent": "sensor",
+    "units": "%",
+    "title": {
+        "en": "Completion (time)"
+    },
+    "getable": true,
+    "icon": "/drivers/printer/assets/job_completion_time.svg"
+}

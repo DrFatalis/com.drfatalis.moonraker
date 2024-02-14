@@ -1,0 +1,23 @@
+{
+    "title": {
+      "en": "Completion changed (layer)"
+    },
+    "tokens": [
+      {
+        "name": "Completion layer %",
+        "type": "number",
+        "title": {
+          "en": "Completion % (layer)"
+        },
+        "example": 5
+      },
+      {
+        "name": "Printer name",
+        "type": "string",
+        "title": {
+          "en": "Printer name"
+        },
+        "example": "Ender3"
+      }
+    ]
+}

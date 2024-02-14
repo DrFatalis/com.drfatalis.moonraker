@@ -1,0 +1,12 @@
+{
+    "device_url": "URL ",
+    "device_notValid": " is not valid",
+    "device_unavailable": "URL cannot be reached",
+    "pair": {
+      "title": "Moonraker Printer Settings",
+      "description": "Please configure the application",
+      "moonrakerServerUrl": "Moonraker IP:Port",
+      "moonrakerPrinterName": "Printer name",
+      "moonrakerPollingRate": "Polling Rate (sec)"
+    }
+  }

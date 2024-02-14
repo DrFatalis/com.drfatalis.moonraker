@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "uiComponent": "sensor",
+    "units": "°C",
+    "title": {
+        "en": "Bed temp"
+    },
+    "getable": true,
+    "icon": "/drivers/printer/assets/printer_temp_bed.svg"
+}

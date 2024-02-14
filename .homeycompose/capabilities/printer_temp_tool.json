@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "uiComponent": "sensor",
+    "units": "°C",
+    "title": {
+        "en": "Tool temp"
+    },
+    "getable": true,
+    "icon": "/drivers/printer/assets/printer_temp_tool.svg"
+}

@@ -1,0 +1,8 @@
+{
+    "type": "string",
+    "title": {
+        "en": "Layer"
+    },
+    "getable": true,
+    "icon": "/drivers/printer/assets/job_layer.svg"
+}

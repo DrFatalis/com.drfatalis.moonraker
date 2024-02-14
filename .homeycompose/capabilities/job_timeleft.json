@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "uiComponent": "sensor",
+    "units": "min",
+    "title": {
+        "en": "Est. Remaining time"
+    },
+    "getable": true,
+    "icon": "/drivers/printer/assets/job_timeleft.svg"
+}

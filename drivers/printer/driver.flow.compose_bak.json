@@ -1,0 +1,30 @@
+{
+    "conditions": [
+        {
+            "id": "is_printing",
+            "title": {
+                "en": "!{{Is|Isn't}} printing"
+            }
+        }
+    ],
+    "actions": [
+        {
+            "id": "cancel_print",
+            "title": {
+                "en": "Cancel current printing job"
+            }
+        },
+        {
+            "id": "job_pause",
+            "title": {
+                "en": "Pause current printing job"
+            }
+        },
+        {
+            "id": "job_resume",
+            "title": {
+                "en": "Resume current printing job"
+            }
+        }
+    ]
+}

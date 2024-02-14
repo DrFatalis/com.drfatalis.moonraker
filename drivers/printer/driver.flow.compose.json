@@ -1,0 +1,20 @@
+{
+    "conditions": [
+        {
+            "id": "is_standby",
+            "title": {
+                "en": "!{{Is|Isn't}} standby"
+            }
+        },{
+            "id": "is_paused",
+            "title": {
+                "en": "!{{Is|Isn't}} paused"
+            }
+        },{
+            "id": "is_printing",
+            "title": {
+                "en": "!{{Is|Isn't}} printing"
+            }
+        }
+    ]
+}

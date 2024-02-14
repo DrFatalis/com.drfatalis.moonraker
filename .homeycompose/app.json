@@ -1,0 +1,29 @@
+{
+  "id": "com.drfatalis.moonraker",
+  "version": "1.1.2",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "brandColor": "#3c4b5a",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Moonraker"
+  },
+  "description": {
+    "en": "Connect to Klipper moonraker instance to stay updated on your printing jobs!"
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Maxime Salecroix",
+    "email": "maxime.salecroix@gmail.com"
+  }
+}

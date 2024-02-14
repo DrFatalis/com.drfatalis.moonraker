@@ -1,0 +1,311 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.drfatalis.moonraker",
+  "version": "1.1.2",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "brandColor": "#3c4b5a",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Moonraker"
+  },
+  "description": {
+    "en": "Connect to Klipper moonraker instance to stay updated on your printing jobs!"
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Maxime Salecroix",
+    "email": "maxime.salecroix@gmail.com"
+  },
+  "flow": {
+    "triggers": [
+      {
+        "title": {
+          "en": "Completion changed (layer)"
+        },
+        "tokens": [
+          {
+            "name": "Completion layer %",
+            "type": "number",
+            "title": {
+              "en": "Completion % (layer)"
+            },
+            "example": 5
+          },
+          {
+            "name": "Printer name",
+            "type": "string",
+            "title": {
+              "en": "Printer name"
+            },
+            "example": "Ender3"
+          }
+        ],
+        "id": "completion_layer_changed"
+      },
+      {
+        "title": {
+          "en": "Completion changed (time)"
+        },
+        "tokens": [
+          {
+            "name": "Completion time %",
+            "type": "number",
+            "title": {
+              "en": "Completion % (time)"
+            },
+            "example": 5
+          },
+          {
+            "name": "Printer name",
+            "type": "string",
+            "title": {
+              "en": "Printer name"
+            },
+            "example": "Ender3"
+          }
+        ],
+        "id": "completion_time_changed"
+      },
+      {
+        "title": {
+          "en": "Print job completes"
+        },
+        "id": "job_complete"
+      },
+      {
+        "title": {
+          "en": "Print job holds"
+        },
+        "id": "job_hold"
+      },
+      {
+        "title": {
+          "en": "Print job starts"
+        },
+        "id": "job_start"
+      }
+    ],
+    "conditions": [
+      {
+        "id": "is_standby",
+        "title": {
+          "en": "!{{Is|Isn't}} standby"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "is_paused",
+        "title": {
+          "en": "!{{Is|Isn't}} paused"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "is_printing",
+        "title": {
+          "en": "!{{Is|Isn't}} printing"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Printer"
+      },
+      "class": "other",
+      "capabilities": [
+        "printer_state",
+        "printer_temp_tool",
+        "printer_temp_bed",
+        "job_layer",
+        "job_completion_layer",
+        "job_completion_time",
+        "job_time",
+        "job_timeleft"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "images": {
+        "small": "/drivers/printer/assets/images/small.png",
+        "large": "/drivers/printer/assets/images/large.png",
+        "xlarge": "/drivers/printer/assets/images/xlarge.png"
+      },
+      "pair": [
+        {
+          "id": "printer_settings"
+        }
+      ],
+      "id": "printer",
+      "settings": [
+        {
+          "id": "name",
+          "type": "text",
+          "label": {
+            "en": "Name"
+          },
+          "value": "Ender3",
+          "hint": {
+            "en": "The name of the printer."
+          }
+        },
+        {
+          "id": "url",
+          "type": "text",
+          "label": {
+            "en": "URL"
+          },
+          "value": "192.168.0.xxx:7125",
+          "hint": {
+            "en": "Moonraker server URL"
+          }
+        },
+        {
+          "id": "pollingRate",
+          "type": "number",
+          "label": {
+            "en": "Polling rate"
+          },
+          "value": 30,
+          "min": 5,
+          "max": 600,
+          "units": {
+            "en": "seconds"
+          }
+        }
+      ]
+    }
+  ],
+  "capabilities": {
+    "job_completion_layer": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "units": "%",
+      "title": {
+        "en": "Completion (layer)"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/job_completion_layer.svg"
+    },
+    "job_completion_time": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "units": "%",
+      "title": {
+        "en": "Completion (time)"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/job_completion_time.svg"
+    },
+    "job_layer": {
+      "type": "string",
+      "title": {
+        "en": "Layer"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/job_layer.svg"
+    },
+    "job_pause": {
+      "type": "boolean",
+      "uiComponent": "button",
+      "title": {
+        "en": "Pause"
+      },
+      "getable": true,
+      "setable": true,
+      "icon": "/drivers/printer/assets/job_pause.svg"
+    },
+    "job_resume": {
+      "type": "boolean",
+      "uiComponent": "button",
+      "title": {
+        "en": "Resume"
+      },
+      "getable": true,
+      "setable": true,
+      "icon": "/drivers/printer/assets/job_resume.svg"
+    },
+    "job_time": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "units": "min",
+      "title": {
+        "en": "Print Time"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/job_time.svg"
+    },
+    "job_timeleft": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "units": "min",
+      "title": {
+        "en": "Est. Remaining time"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/job_timeleft.svg"
+    },
+    "printer_state": {
+      "type": "string",
+      "title": {
+        "en": "State"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/printer_state.svg"
+    },
+    "printer_temp_bed": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "units": "°C",
+      "title": {
+        "en": "Bed temp"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/printer_temp_bed.svg"
+    },
+    "printer_temp_tool": {
+      "type": "number",
+      "uiComponent": "sensor",
+      "units": "°C",
+      "title": {
+        "en": "Tool temp"
+      },
+      "getable": true,
+      "icon": "/drivers/printer/assets/printer_temp_tool.svg"
+    }
+  }
+}

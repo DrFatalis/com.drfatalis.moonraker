@@ -1,0 +1,10 @@
+{
+    "type": "boolean",
+    "uiComponent": "button",
+    "title": {
+        "en": "Pause"
+    },
+    "getable": true,
+    "setable": true,
+    "icon": "/drivers/printer/assets/job_pause.svg"
+}

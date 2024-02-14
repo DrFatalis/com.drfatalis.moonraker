@@ -1,0 +1,10 @@
+{
+    "type": "number",
+    "uiComponent": "sensor",
+    "units": "min",
+    "title": {
+        "en": "Print Time"
+    },
+    "getable": true,
+    "icon": "/drivers/printer/assets/job_time.svg"
+}

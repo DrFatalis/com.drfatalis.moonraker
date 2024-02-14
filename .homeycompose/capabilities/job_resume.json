@@ -1,0 +1,10 @@
+{
+    "type": "boolean",
+    "uiComponent": "button",
+    "title": {
+        "en": "Resume"
+    },
+    "getable": true,
+    "setable": true,
+    "icon": "/drivers/printer/assets/job_resume.svg"
+}

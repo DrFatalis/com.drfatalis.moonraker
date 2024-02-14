@@ -1,0 +1,23 @@
+{
+    "title": {
+      "en": "Completion changed (time)"
+    },
+    "tokens": [
+      {
+        "name": "Completion time %",
+        "type": "number",
+        "title": {
+          "en": "Completion % (time)"
+        },
+        "example": 5
+      },
+      {
+        "name": "Printer name",
+        "type": "string",
+        "title": {
+          "en": "Printer name"
+        },
+        "example": "Ender3"
+      }
+    ]
+}

@@ -1,0 +1,20 @@
+{
+  "1.0.0": {
+    "en": "Initial app creation. Sensor and timer reading only"
+  },
+  "1.0.1": {
+    "en": "Updated driver icon and removed untested actions. They will be deployed on next minor release"
+  },
+  "1.0.2": {
+    "en": "Completion and print time left added"
+  },
+  "1.1.0": {
+    "en": "Trigger on job start / pause and completion"
+  },
+  "1.1.1": {
+    "en": "Patched completion and print time left"
+  },
+  "1.1.2": {
+    "en": "New capabilities added as well as new trigger with argument --> May need devices to be recreated"
+  }
+}
