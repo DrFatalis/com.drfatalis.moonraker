@@ -16,5 +16,8 @@
   },
   "1.1.2": {
     "en": "New capabilities added as well as new trigger with argument --> May need devices to be recreated"
+  },
+  "1.2.0": {
+    "en": "Added chamber temperature sensor capability"
   }
 }
