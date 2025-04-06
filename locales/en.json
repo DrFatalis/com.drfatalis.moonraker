@@ -5,8 +5,9 @@
     "pair": {
       "title": "Moonraker Printer Settings",
       "description": "Please configure the application",
-      "moonrakerServerUrl": "Moonraker IP:Port",
+      "moonrakerServerUrl": "Moonraker IP:Port (no http needed)",
       "moonrakerPrinterName": "Printer name",
-      "moonrakerPollingRate": "Polling Rate (sec)"
+      "moonrakerPollingRate": "Polling Rate (sec)",
+      "moonrakerHasChamberTempSensor": "Has chamber temp. sensor"
     }
   }

@@ -1,5 +1,12 @@
 {
     "title": {
       "en": "Print job holds"
-    }
+    },
+    "args": [
+      {
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=printer"
+      }
+    ]
 }

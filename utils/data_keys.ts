@@ -9,5 +9,6 @@ export class Data_Keys {
     static urlPrintStats = "/printer/objects/query?print_stats";
     static urlQueryExtruder = "/printer/objects/query?extruder";
     static urlQueryBed = "/printer/objects/query?heater_bed";
+    static urlQueryChamber = "/printer/objects/query?chamber_temp";
     static urlMetadataFilename = "/server/files/metadata?filename=";
 };

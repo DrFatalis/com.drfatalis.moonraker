@@ -1,0 +1,13 @@
+{
+    "device_url": "URL ",
+    "device_notValid": " n'est pas valide",
+    "device_unavailable": "URL n'est pas accessible",
+    "pair": {
+      "title": "Moonraker Printer Settings",
+      "description": "Veuillez configurer l'application",
+      "moonrakerServerUrl": "Moonraker IP:Port (http n'est pas nécessaire)",
+      "moonrakerPrinterName": "Nom de l'imprimante",
+      "moonrakerPollingRate": "Intervalle de mise à jour (sec)",
+      "moonrakerHasChamberTempSensor": "Possède un capteur de température pour la chambre"
+    }
+  }

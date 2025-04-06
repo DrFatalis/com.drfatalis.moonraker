@@ -1,4 +1,4 @@
-import Homey from 'homey';
+import Homey, { Device } from 'homey';
 import axios from 'axios';
 import https from 'https';
 import { Data_Keys } from '../../utils/data_keys';
@@ -37,6 +37,10 @@ class PrinterDevice extends Homey.Device {
         hotend: {
           actual: 0,
           target: 0
+        },
+        chamber: {
+          actual: 0,
+          target: 0
         }
       },
       job: {
@@ -56,7 +60,17 @@ class PrinterDevice extends Homey.Device {
       }
     };
 
+    this.updateDeviceCapabilities();
+
     this.log('Device ' + this.deviceSettings.name + ' has been initialized');
+
+    this.registerCapabilityListener("job_completion_layer", this.setCompletionLayerValue.bind(this));
+    this.registerCapabilityListener("job_completion_time", this.setCompletionTimeValue.bind(this));
+    this.registerCapabilityListener("job_start", this.setJobStart.bind(this));
+    this.registerCapabilityListener("job_hold", this.setJobHold.bind(this));
+    this.registerCapabilityListener("job_complete", this.setJobComplete.bind(this));
+
+    this.log('Listeners created for device ' + this.deviceSettings.name);
 
     this.refreshingInfo = true;
     this.addListener('poll', this.refreshInfo);
@@ -89,6 +103,7 @@ class PrinterDevice extends Homey.Device {
     changedKeys: string[];
   }): Promise<string | void> {
     this.log(this.getSettings().name + ' settings where changed');
+    this.updateDeviceCapabilities();
   }
 
   /**
@@ -106,6 +121,21 @@ class PrinterDevice extends Homey.Device {
   async onDeleted() {
     this.log(this.getSettings().name + ' has been deleted');
     this.refreshingInfo = false;
+  }
+
+  updateDeviceCapabilities() {
+    if(this.getSettings().hasChamberTempSensor) {
+      if(this.getCapabilities().find(x => x == "printer_temp_chamber") == null)
+      {
+        this.addCapability("printer_temp_chamber");
+      }
+    }
+    else {
+      if(this.getCapabilities().find(x => x == "printer_temp_chamber") != null)
+        {
+          this.removeCapability('printer_temp_chamber');
+        }
+    }
   }
 
   async getServerUrl(){
@@ -133,7 +163,29 @@ class PrinterDevice extends Homey.Device {
     return this.printer.job.print_time_left;
   }
 
+  async setJobStart(){
+    this.log("Job started");
+    this.log("---------------------------------------------------------");
+  }
+
+  async setJobHold(){
+    this.log("Job hold");
+  }
+
+  async setJobComplete(){
+    this.log("Job complete");
+  }
+
+  async setCompletionLayerValue(){
+    this.setCapabilityValue('job_completion_layer', this.printer.job.completion_layer).catch(error => this.log(error));
+  }
+
+  async setCompletionTimeValue(){
+    this.setCapabilityValue('job_completion_time', this.printer.job.completion_time).catch(error => this.log(error)); 
+  };
+
   updateCapabilities(){
+
     if (this.printer.memory.firstInit){
       this.log("First init done");
       this.printer.memory.firstInit = false;
@@ -144,12 +196,14 @@ class PrinterDevice extends Homey.Device {
         switch (this.printer.state.cur) {
          case Data_Keys.statePrinting:
             this.homey.flow.getTriggerCard('job_start').trigger();
+            this.setJobStart();     
           case Data_Keys.statePaused:
             this.homey.flow.getTriggerCard('job_hold').trigger();
+            this.setJobHold(); 
           case Data_Keys.stateComplete:
-            this.homey.flow.getTriggerCard('job_complete').trigger();
           case Data_Keys.stateStandby:
             this.homey.flow.getTriggerCard('job_complete').trigger();
+            this.setJobComplete(); 
         }
       }
 
@@ -163,6 +217,14 @@ class PrinterDevice extends Homey.Device {
           )
           .catch( this.error )
           .then( this.log )
+        this.homey.flow.getTriggerCard('completion_layer_changed').trigger(
+          { 
+            'Completion layer %': this.printer.job.completion_layer != null ? this.printer.job.completion_layer : 0,
+            'Printer name': this.deviceSettings.name
+          }
+        )
+        .catch( this.error )
+        .then( this.log )
       }
 
       if(this.printer.memory.completion_time != this.printer.job.completion_time ){
@@ -179,6 +241,7 @@ class PrinterDevice extends Homey.Device {
     }
     
     // Update memory
+    this.setJobStart();
     this.printer.memory.state = this.printer.state.cur;
     this.printer.memory.completion_layer = this.printer.job.completion_layer;
     this.printer.memory.completion_time = this.printer.job.completion_time;
@@ -187,15 +250,20 @@ class PrinterDevice extends Homey.Device {
     this.setCapabilityValue('job_time', Math.round(this.printer.job.time / 60)).catch(error => this.log(error));
     this.setCapabilityValue('printer_temp_tool', this.printer.temp.hotend.actual).catch(error => this.log(error));
     this.setCapabilityValue('printer_temp_bed', this.printer.temp.bed.actual).catch(error => this.log(error));
+    if(this.deviceSettings.hasChamberTempSensor) {
+      this.setCapabilityValue('printer_temp_chamber', this.printer.temp.chamber.actual).catch(error => this.log(error));
+    }
     this.setCapabilityValue('job_timeleft', this.printer.job.left).catch(error => this.log(error));
-    this.setCapabilityValue('job_completion_layer', this.printer.job.completion_layer).catch(error => this.log(error));
-    this.setCapabilityValue('job_completion_time', this.printer.job.completion_time).catch(error => this.log(error));    
+    
+    this.setCompletionLayerValue();
+    this.setCompletionTimeValue();
+    
     this.setCapabilityValue('job_layer', this.printer.job.current_layer + " / " + this.printer.job.total_layer).catch(error => this.log(error));
   }
 
   async refreshInfo(){
     while ( this.refreshingInfo ) {
-      this.log('http://' + this.deviceSettings.url + Data_Keys.urlPrintStats);
+      //this.log('http://' + this.deviceSettings.url + Data_Keys.urlPrintStats);
       let promise = await this.axiosInstance({
                   method: "get",
                   url: 'http://' + this.deviceSettings.url + Data_Keys.urlPrintStats,
@@ -214,7 +282,8 @@ class PrinterDevice extends Homey.Device {
                     this.printer.job.completion_layer = Math.round(this.printer.job.current_layer * 100 / this.printer.job.total_layer);
                   }
                   else{
-                    this.log(response);
+                    this.log("Device not reachable");
+                    //this.log(response);
                   };
               })
               .catch((error) => {
@@ -222,19 +291,20 @@ class PrinterDevice extends Homey.Device {
               });
 
       promise = await this.axiosInstance({
-                method: "get",
-                url: 'http://' + this.deviceSettings.url + Data_Keys.urlQueryExtruder,
-                data: "",
-                timeout: 5 * 1000,
-            })
+                  method: "get",
+                  url: 'http://' + this.deviceSettings.url + Data_Keys.urlQueryExtruder,
+                  data: "",
+                  timeout: 5 * 1000,
+              })
             .then((response) => {
                 if(response.status == 200){
                   //this.log(response.data.result);
-                  this.printer.temp.hotend.actual = response.data.result.status.extruder.temperature;
-                  this.printer.temp.hotend.target = response.data.result.status.extruder.target;
+                  this.printer.temp.hotend.actual = response.data.result.status.extruder.temperature != null ? response.data.result.status.extruder.temperature : 0;
+                  this.printer.temp.hotend.target = response.data.result.status.extruder.target != null ? response.data.result.status.extruder.target : 0;
                 }
                 else{
-                  this.log(response);
+                  this.log("Device not reachable");
+                  //this.log(response);
                 };
             })
             .catch((error) => {
@@ -250,16 +320,41 @@ class PrinterDevice extends Homey.Device {
           .then((response) => {
               if(response.status == 200){
                 //this.log(response.data.result);
-                this.printer.temp.bed.actual = response.data.result.status.heater_bed.temperature;
-                this.printer.temp.bed.target = response.data.result.status.heater_bed.target;
+                this.printer.temp.bed.actual = response.data.result.status.heater_bed.temperature != null ? response.data.result.status.heater_bed.temperature : 0;
+                this.printer.temp.bed.target = response.data.result.status.heater_bed.target != null ? response.data.result.status.heater_bed.target : 0;
               }
               else{
-                this.log(response);
+                this.log("Device not reachable");
+                //this.log(response);
               };
           })
           .catch((error) => {
               this.log(error);
           });
+
+      if(this.deviceSettings.hasChamberTempSensor)
+      {
+        promise = await this.axiosInstance({
+            method: "get",
+            url: 'http://' + this.deviceSettings.url + Data_Keys.urlQueryChamber,
+            data: "",
+            timeout: 5 * 1000,
+        })
+        .then((response) => {
+            if(response.status == 200){
+              //this.log(response.data.result);
+              this.printer.temp.chamber.actual = response.data.result.status.chamber_temp.temperature != null ? response.data.result.status.chamber_temp.temperature : 0;
+              this.printer.temp.chamber.target = response.data.result.status.chamber_temp.target != null ? response.data.result.status.chamber_temp.target : 0;
+            }
+            else{
+              this.log("Device not reachable");
+              //this.log(response);
+            };
+        })
+        .catch((error) => {
+            this.log(error);
+        }); 
+      }
 
       if(this.printer.job.filename != null && this.printer.job.filename != ""){
         promise = await this.axiosInstance({
@@ -276,20 +371,23 @@ class PrinterDevice extends Homey.Device {
                 this.printer.job.completion_time = Math.round((this.printer.job.time * 100) / this.printer.job.estimate);
               }
               else{
-                this.log(response);
+                this.log("Device not reachable");
+                //this.log(response);
               };
           })
           .catch((error) => {
               this.log(error);
-          });
-        };
+        });
+      };
 
       this.updateCapabilities();
 
-      await delay( this.deviceSettings.pollingRate != null ? this.deviceSettings.pollingRate*1000 : 30*1000);
-      this.log(this.printer);
+      await delay( this.deviceSettings.pollingRate != null ? parseInt(this.deviceSettings.pollingRate)*1000 : 30*1000);
+      //this.log(this.printer);
     }
-  } 
+  }
 }
+
+
 
 module.exports = PrinterDevice;

@@ -1,47 +1,62 @@
-<fieldset class="homey-form-fieldset">
-    <div class="homey-form-group">
-        <label class="homey-form-label" for="moonrakerPrinterName" data-i18n="pair.moonrakerPrinterName"></label>
-        <input class="homey-form-input" id="moonrakerPrinterName" type="text" value=""/>
-    </div>
-    <div class="homey-form-group">
-        <label class="homey-form-label" for="moonrakerServerUrl" data-i18n="pair.moonrakerServerUrl"></label>
-        <input class="homey-form-input" id="moonrakerServerUrl" type="text" value="" />
-        <label class="homey-form-label" id="moonrakerServerUrlResult"> </label>
-    </div>
-    <div class="homey-form-group">
-        <label class="homey-form-label" for="moonrakerPollingRate" data-i18n="pair.moonrakerPollingRate"></label>
-        <input class="homey-form-input" id="moonrakerPollingRate" type="number" value="30"/>
-    </div>
-</fieldset>
-<button id="add" class="homey-button-primary-full">Add device</button>
+<html>
+    <script type="application/javascript">
+        Homey.showLoadingOverlay();
+        Homey.setTitle(Homey.__("pair.title"));
 
-<script type="application/javascript">
-
-    Homey.setTitle(Homey.__("pair.title"));
-
-    var addElement = document.getElementById("add");
-    addElement.addEventListener("click", function (e) {
-        Homey.createDevice({
-            name: document.getElementById('moonrakerPrinterName').value.replace(" ", "-"),
-            data: {
-                id: '"gapps-' + document.getElementById('moonrakerPrinterName').value + '"',
-            },
-            store: {
-                name:           document.getElementById('moonrakerPrinterName').value,
-                url:            document.getElementById('moonrakerServerUrl').value,
-                pollingRate:    document.getElementById('moonrakerPollingRate').value
-            },
-            settings: {
-                name:           document.getElementById('moonrakerPrinterName').value,
-                url:            document.getElementById('moonrakerServerUrl').value,
-                pollingRate:    document.getElementById('moonrakerPollingRate').value
+        var addElement = document.getElementById("add");
+        addElement.addEventListener("click", function (e) {
+            if(document.getElementById('moonrakerPrinterName').value != "" && document.getElementById('moonrakerServerUrl').value != ""){
+                Homey.createDevice({
+                    name: document.getElementById('moonrakerPrinterName').value.replace(" ", "-"),
+                    data: {
+                        id: '"gapps-' + document.getElementById('moonrakerPrinterName').value + '"',
+                    },
+                    store: {
+                        name:                   document.getElementById('moonrakerPrinterName').value,
+                        url:                    document.getElementById('moonrakerServerUrl').value,
+                        pollingRate:            document.getElementById('moonrakerPollingRate').value,
+                        hasChamberTempSensor:   document.getElementById('moonrakerHasChamberTempSensor').value
+                    },
+                    settings: {
+                        name:                   document.getElementById('moonrakerPrinterName').value,
+                        url:                    document.getElementById('moonrakerServerUrl').value,
+                        pollingRate:            document.getElementById('moonrakerPollingRate').value,
+                        hasChamberTempSensor:   document.getElementById('moonrakerHasChamberTempSensor').value
+                    }
+                })
+                .then(function (result) {
+                    Homey.done();
+                })
+                .catch(function (error) {
+                    Homey.alert(error);
+                });
             }
-        })
-        .then(function (result) {
-            Homey.done();
-        })
-        .catch(function (error) {
-            Homey.alert(error);
         });
-    });
-</script>
+
+        Homey.hideLoadingOverlay();
+    </script>
+
+    <div class="setting">
+        <fieldset class="homey-form-fieldset">
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="moonrakerPrinterName" data-i18n="pair.moonrakerPrinterName"></label>
+                <input class="homey-form-input" id="moonrakerPrinterName" type="text" value=""/>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="moonrakerServerUrl" data-i18n="pair.moonrakerServerUrl"></label>
+                <input class="homey-form-input" id="moonrakerServerUrl" type="text" value="" />
+                <label class="homey-form-label" id="moonrakerServerUrlResult"> </label>
+            </div>
+            <div class="homey-form-group">
+                <label class="homey-form-label" for="moonrakerPollingRate" data-i18n="pair.moonrakerPollingRate"></label>
+                <input class="homey-form-input" id="moonrakerPollingRate" type="number" value="30" step="1"/>
+            </div>
+            <label class="homey-form-checkbox">
+                <input class="homey-form-checkbox-input" type="checkbox" id="moonrakerHasChamberTempSensor"/>
+                <span class="homey-form-checkbox-checkmark"></span>
+                <span class="homey-form-checkbox-text" for="moonrakerHasChamberTempSensor" data-i18n="pair.moonrakerHasChamberTempSensor"></span>
+              </label>
+        </fieldset>
+        <button id="add" class="homey-button-primary-full">Add device</button>
+    </div>
+</html>

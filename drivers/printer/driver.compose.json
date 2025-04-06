@@ -4,15 +4,16 @@
   },
   "class": "other",
   "capabilities": [
-    
     "printer_state",
     "printer_temp_tool",
+    "printer_temp_chamber",
     "printer_temp_bed",
     "job_layer",
     "job_completion_layer",
     "job_completion_time",
     "job_time",
     "job_timeleft"
+
   ],
   "platforms": [
     "local"

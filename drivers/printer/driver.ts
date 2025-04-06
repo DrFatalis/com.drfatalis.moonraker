@@ -44,7 +44,7 @@ class PrinterDriver extends Homey.Driver {
     await session.done();
 
     // Received when a view has changed
-    session.setHandler("showView", async function (viewId) {
+    session.setHandler("printer_settings", async function (viewId) {
       console.log("View: " + viewId);
     });
   }
