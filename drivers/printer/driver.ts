@@ -41,7 +41,7 @@ class PrinterDriver extends Homey.Driver {
     await session.prevView();
 
     // Close the pair session
-    await session.done();
+    //await session.done();
 
     // Received when a view has changed
     session.setHandler("printer_settings", async function (viewId) {
@@ -60,7 +60,7 @@ class PrinterDriver extends Homey.Driver {
     await session.prevView();
 
     // Close the pair session
-    await session.done();
+    //await session.done();
 
     // Received when a view has changed
     session.setHandler("showView", async function (viewId) {
