@@ -1,6 +1,6 @@
 {
   "id": "com.drfatalis.moonraker",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#3c4b5a",

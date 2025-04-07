@@ -19,5 +19,8 @@
   },
   "1.2.0": {
     "en": "Added chamber temperature sensor capability"
+  },
+  "1.2.1": {
+    "en": "Chamber temperature sensors correction & icon"
   }
 }
