@@ -6,5 +6,5 @@
         "en": "Chamber temp"
     },
     "getable": true,
-    "icon": "/drivers/printer/assets/printer_temp_bed.svg"
+    "icon": "/drivers/printer/assets/printer_temp_chamber.svg"
 }

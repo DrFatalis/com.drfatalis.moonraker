@@ -266,7 +266,7 @@ class PrinterDevice extends Homey.Device {
       //this.log('http://' + this.deviceSettings.url + Data_Keys.urlPrintStats);
       let promise = await this.axiosInstance({
                   method: "get",
-                  url: 'http://' + this.deviceSettings.url + Data_Keys.urlPrintStats,
+                  url: 'http://' + this.deviceSettings.url + Data_Keys.urlQuery,
                   data: "",
                   timeout: 5 * 1000,
               })
@@ -280,6 +280,14 @@ class PrinterDevice extends Homey.Device {
                     this.printer.job.total_layer = response.data.result.status.print_stats.info.total_layer != null ? response.data.result.status.print_stats.info.total_layer : 1;
                     this.printer.job.current_layer = response.data.result.status.print_stats.info.current_layer != null ? response.data.result.status.print_stats.info.current_layer : 0;
                     this.printer.job.completion_layer = Math.round(this.printer.job.current_layer * 100 / this.printer.job.total_layer);
+
+                    this.printer.temp.hotend.actual = response.data.result.status.extruder.temperature != null ? response.data.result.status.extruder.temperature : 0;
+                    this.printer.temp.hotend.target = response.data.result.status.extruder.target != null ? response.data.result.status.extruder.target : 0;
+
+                    this.printer.temp.bed.actual = response.data.result.status.heater_bed.temperature != null ? response.data.result.status.heater_bed.temperature : 0;
+                    this.printer.temp.bed.target = response.data.result.status.heater_bed.target != null ? response.data.result.status.heater_bed.target : 0;
+
+                    this.printer.temp.chamber.actual = response.data.result.status["temperature_sensor chamber_temp"].temperature != null ? response.data.result.status["temperature_sensor chamber_temp"].temperature : 0;
                   }
                   else{
                     this.log("Device not reachable");
@@ -289,72 +297,6 @@ class PrinterDevice extends Homey.Device {
               .catch((error) => {
                   this.log(error);
               });
-
-      promise = await this.axiosInstance({
-                  method: "get",
-                  url: 'http://' + this.deviceSettings.url + Data_Keys.urlQueryExtruder,
-                  data: "",
-                  timeout: 5 * 1000,
-              })
-            .then((response) => {
-                if(response.status == 200){
-                  //this.log(response.data.result);
-                  this.printer.temp.hotend.actual = response.data.result.status.extruder.temperature != null ? response.data.result.status.extruder.temperature : 0;
-                  this.printer.temp.hotend.target = response.data.result.status.extruder.target != null ? response.data.result.status.extruder.target : 0;
-                }
-                else{
-                  this.log("Device not reachable");
-                  //this.log(response);
-                };
-            })
-            .catch((error) => {
-                this.log(error);
-            });
-
-      promise = await this.axiosInstance({
-              method: "get",
-              url: 'http://' + this.deviceSettings.url + Data_Keys.urlQueryBed,
-              data: "",
-              timeout: 5 * 1000,
-          })
-          .then((response) => {
-              if(response.status == 200){
-                //this.log(response.data.result);
-                this.printer.temp.bed.actual = response.data.result.status.heater_bed.temperature != null ? response.data.result.status.heater_bed.temperature : 0;
-                this.printer.temp.bed.target = response.data.result.status.heater_bed.target != null ? response.data.result.status.heater_bed.target : 0;
-              }
-              else{
-                this.log("Device not reachable");
-                //this.log(response);
-              };
-          })
-          .catch((error) => {
-              this.log(error);
-          });
-
-      if(this.deviceSettings.hasChamberTempSensor)
-      {
-        promise = await this.axiosInstance({
-            method: "get",
-            url: 'http://' + this.deviceSettings.url + Data_Keys.urlQueryChamber,
-            data: "",
-            timeout: 5 * 1000,
-        })
-        .then((response) => {
-            if(response.status == 200){
-              //this.log(response.data.result);
-              this.printer.temp.chamber.actual = response.data.result.status.chamber_temp.temperature != null ? response.data.result.status.chamber_temp.temperature : 0;
-              this.printer.temp.chamber.target = response.data.result.status.chamber_temp.target != null ? response.data.result.status.chamber_temp.target : 0;
-            }
-            else{
-              this.log("Device not reachable");
-              //this.log(response);
-            };
-        })
-        .catch((error) => {
-            this.log(error);
-        }); 
-      }
 
       if(this.printer.job.filename != null && this.printer.job.filename != ""){
         promise = await this.axiosInstance({

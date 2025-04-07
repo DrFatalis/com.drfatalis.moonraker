@@ -6,9 +6,6 @@ export class Data_Keys {
     static stateComplete = "complete";
     static stateError = "error";
     
-    static urlPrintStats = "/printer/objects/query?print_stats";
-    static urlQueryExtruder = "/printer/objects/query?extruder";
-    static urlQueryBed = "/printer/objects/query?heater_bed";
-    static urlQueryChamber = "/printer/objects/query?chamber_temp";
+    static urlQuery = "/printer/objects/query?print_stats&extruder=target,temperature&heater_bed=target,temperature&temperature_sensor+chamber_temp=temperature"
     static urlMetadataFilename = "/server/files/metadata?filename=";
 };
