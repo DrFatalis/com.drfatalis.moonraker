@@ -1,11 +1,11 @@
 {
     "type": "number",
-    "uiComponent": "sensor",
-    "units": "°C",
+    "uiComponent": null,
+    "units": " ",
     "min": 0,
-    "decimals": 2,
+    "decimals": 0,
     "title": {
-        "en": "Bed temp"
+        "en": "Current layer"
     },
     "getable": true,
     "icon": "/drivers/printer/assets/printer_temp_bed.svg",

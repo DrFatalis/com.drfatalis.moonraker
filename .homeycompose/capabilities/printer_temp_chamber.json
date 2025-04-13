@@ -2,9 +2,12 @@
     "type": "number",
     "uiComponent": "sensor",
     "units": "°C",
+    "min": 0,
+    "decimals": 2,
     "title": {
         "en": "Chamber temp"
     },
     "getable": true,
-    "icon": "/drivers/printer/assets/printer_temp_chamber.svg"
+    "icon": "/drivers/printer/assets/printer_temp_chamber.svg",
+    "insights": true
 }

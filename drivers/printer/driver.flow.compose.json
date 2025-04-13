@@ -1,4 +1,84 @@
 {
+    "triggers": [
+        {
+            "title": {
+                "en": "Chamber temp. changed"
+            },
+            "tokens": [
+                {
+                "name": "Chamber temperature",
+                "type": "number",
+                "title": {
+                    "en": "Chamber temperature"
+                },
+                "example": 5
+                }
+            ],
+            "id": "chamber_temp_changed"
+            },
+            {
+            "title": {
+                "en": "Completion changed (layer)"
+            },
+            "tokens": [
+                {
+                "name": "Completion layer %",
+                "type": "number",
+                "title": {
+                    "en": "Completion % (layer)"
+                },
+                "example": 5
+                }
+            ],
+            "id": "completion_layer_changed"
+            },
+            {
+            "title": {
+                "en": "Completion changed (time)"
+            },
+            "tokens": [
+                {
+                "name": "Completion time %",
+                "type": "number",
+                "title": {
+                    "en": "Completion % (time)"
+                },
+                "example": 5
+                }
+            ],
+            "id": "completion_time_changed"
+            },
+            {
+            "title": {
+                "en": "Print job cancelled"
+            },
+            "id": "job_cancelled"
+            },
+            {
+            "title": {
+                "en": "Print job completes"
+            },
+            "id": "job_complete"
+            },
+            {
+            "title": {
+                "en": "Print job is in error"
+            },
+            "id": "job_error"
+            },
+            {
+            "title": {
+                "en": "Print job holds"
+            },
+            "id": "job_hold"
+            },
+            {
+            "title": {
+                "en": "Print job starts"
+            },
+            "id": "job_start"
+        }
+    ],
     "conditions": [
         {
             "id": "is_standby",
@@ -14,6 +94,16 @@
             "id": "is_printing",
             "title": {
                 "en": "!{{Is|Isn't}} printing"
+            }
+        },{
+            "id": "is_in_error",
+            "title": {
+                "en": "!{{Is|Isn't}} in error"
+            }
+        },{
+            "id": "is_cancelled",
+            "title": {
+                "en": "!{{Is|Isn't}} cancelled"
             }
         }
     ]

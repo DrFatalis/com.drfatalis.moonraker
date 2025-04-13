@@ -14,6 +14,7 @@ class PrinterDevice extends Homey.Device {
                                         });
   deviceSettings: any;
   printer: any;
+  triggers: any;
 
   /**
    * onInit is called when the device is initialized.
@@ -47,6 +48,8 @@ class PrinterDevice extends Homey.Device {
         filename: "",
         total_layer: 0,
         current_layer: 0,
+        previous_layer_start: Date.now(),
+        previous_layer_time: 0,
         completion_layer: 0,
         estimate: 0,
         time: 0,
@@ -55,6 +58,8 @@ class PrinterDevice extends Homey.Device {
       },
       memory: {
         firstInit: true,
+        chamber_temp: 0,
+        current_layer: 0,
         completion_layer: 0,
         completion_time: 0,
       }
@@ -69,6 +74,10 @@ class PrinterDevice extends Homey.Device {
     this.registerCapabilityListener("job_start", this.setJobStart.bind(this));
     this.registerCapabilityListener("job_hold", this.setJobHold.bind(this));
     this.registerCapabilityListener("job_complete", this.setJobComplete.bind(this));
+    this.registerCapabilityListener("job_cancelled", this.setJobError.bind(this));
+    this.registerCapabilityListener("job_error", this.setJobCancelled.bind(this));    
+    this.registerCapabilityListener("job_pause", this.setJobPause.bind(this));
+    this.registerCapabilityListener("job_resume", this.setJobResume.bind(this));
 
     this.log('Listeners created for device ' + this.deviceSettings.name);
 
@@ -124,6 +133,22 @@ class PrinterDevice extends Homey.Device {
   }
 
   updateDeviceCapabilities() {
+    if(this.getCapabilities().find(x => x == "current_layer") == null) { this.addCapability("current_layer");}
+    if(this.getCapabilities().find(x => x == "job_completion_layer") == null) { this.addCapability("job_completion_layer");}
+    if(this.getCapabilities().find(x => x == "job_completion_time") == null) { this.addCapability("job_completion_time");}
+    if(this.getCapabilities().find(x => x == "job_layer") == null) { this.addCapability("job_layer");}
+    if(this.getCapabilities().find(x => x == "job_pause") == null) { this.addCapability("job_pause");}
+    if(this.getCapabilities().find(x => x == "job_resume") == null) { this.addCapability("job_resume");}
+    if(this.getCapabilities().find(x => x == "job_time") == null) { this.addCapability("job_time");}
+    if(this.getCapabilities().find(x => x == "job_timeleft") == null) { this.addCapability("job_timeleft");}
+    if(this.getCapabilities().find(x => x == "previous_layer_time") == null) { this.addCapability("previous_layer_time");}
+    if(this.getCapabilities().find(x => x == "previous_layer") == null) { this.addCapability("previous_layer");}
+    if(this.getCapabilities().find(x => x == "printer_state") == null) { this.addCapability("printer_state");}
+    if(this.getCapabilities().find(x => x == "printer_temp_bed") == null) { this.addCapability("printer_temp_bed");}
+    if(this.getCapabilities().find(x => x == "printer_temp_tool") == null) { this.addCapability("printer_temp_tool");}
+    if(this.getCapabilities().find(x => x == "total_layer") == null) { this.addCapability("total_layer");}
+
+    // Optionnal Capabilities
     if(this.getSettings().hasChamberTempSensor) {
       if(this.getCapabilities().find(x => x == "printer_temp_chamber") == null)
       {
@@ -155,6 +180,14 @@ class PrinterDevice extends Homey.Device {
     return (this.printer.state.cur == Data_Keys.statePaused) ? true : false;
   }
 
+  async checkPrinterIsCancelled() {
+    return (this.printer.state.cur == Data_Keys.stateCancelled) ? true : false;
+  }
+
+  async checkPrinterIsInError() {
+    return (this.printer.state.cur == Data_Keys.stateError) ? true : false;
+  }
+
   async getPrintTime() {
     return this.printer.job.print_time;
   }
@@ -165,7 +198,6 @@ class PrinterDevice extends Homey.Device {
 
   async setJobStart(){
     this.log("Job started");
-    this.log("---------------------------------------------------------");
   }
 
   async setJobHold(){
@@ -174,6 +206,54 @@ class PrinterDevice extends Homey.Device {
 
   async setJobComplete(){
     this.log("Job complete");
+  }
+
+  async setJobError(){
+    this.log("Job in error");
+  }
+
+  async setJobCancelled(){
+    this.log("Job cancelled");
+  }
+
+  // Action by user possible
+  async setJobPause(){
+    let promise = await this.axiosInstance({
+        method: "post",
+        url: 'http://' + this.deviceSettings.url + Data_Keys.urlPauseJob,
+        data: {
+          "jsonrpc": "2.0",
+          "method": "printer.print.pause",
+          "id": 4564
+        },
+        timeout: 5 * 1000,
+      })
+      .then((response) => {
+          //this.log(response);
+      })
+      .catch((error) => {
+          this.log(error);
+      });
+  }
+
+  // Action by user possible
+  async setJobResume(){
+    let promise = await this.axiosInstance({
+        method: "post",
+        url: 'http://' + this.deviceSettings.url + Data_Keys.urlResumeJob,
+        data: {
+          "jsonrpc": "2.0",
+          "method": "printer.print.resume",
+          "id": 1465
+        },
+        timeout: 5 * 1000,
+      })
+      .then((response) => {
+          //this.log(response);
+      })
+      .catch((error) => {
+          this.log(error);
+      });
   }
 
   async setCompletionLayerValue(){
@@ -195,44 +275,59 @@ class PrinterDevice extends Homey.Device {
         this.printer.memory.state = this.printer.state.cur;
         switch (this.printer.state.cur) {
          case Data_Keys.statePrinting:
-            this.homey.flow.getTriggerCard('job_start').trigger();
+            this.homey.flow.getDeviceTriggerCard('job_start').trigger(this);
             this.setJobStart();     
           case Data_Keys.statePaused:
-            this.homey.flow.getTriggerCard('job_hold').trigger();
+            this.homey.flow.getDeviceTriggerCard('job_hold').trigger(this);
             this.setJobHold(); 
           case Data_Keys.stateComplete:
           case Data_Keys.stateStandby:
-            this.homey.flow.getTriggerCard('job_complete').trigger();
+            this.homey.flow.getDeviceTriggerCard('job_complete').trigger(this);
             this.setJobComplete(); 
+          case Data_Keys.stateError:
+            this.homey.flow.getDeviceTriggerCard('job_error').trigger(this);
+            this.setJobError();
+          case Data_Keys.stateCancelled:
+            this.homey.flow.getDeviceTriggerCard('job_cancelled').trigger(this);
+            this.setJobCancelled();
         }
       }
 
+      if(this.printer.memory.current_layer != this.printer.job.current_layer ){
+        this.printer.memory.current_layer = this.printer.job.current_layer;
+        this.printer.job.previous_layer_time = Math.floor((Date.now() - this.printer.job.previous_layer_start) / 1000),
+        this.printer.job.previous_layer_start = Date.now();
+      }
+
+      if(this.getCapabilities().find(x => x == "printer_temp_chamber") != null){
+        if(this.printer.memory.chamber_temp != this.printer.job.chamber_temp ){
+          this.printer.memory.chamber_temp = this.printer.job.chamber_temp;
+          this.homey.flow.getDeviceTriggerCard('chamber_temp_changed').trigger(this,
+              { 
+                'Chamber temperature': this.printer.job.chamber_temp != null ? this.printer.job.chamber_temp : 0
+              }
+            )
+            .catch( this.error )
+            .then( this.log )
+        }
+      }      
+
       if(this.printer.memory.completion_layer != this.printer.job.completion_layer ){
         this.printer.memory.completion_layer = this.printer.job.completion_layer;
-        this.homey.flow.getTriggerCard('completion_layer_changed').trigger( 
+        this.homey.flow.getDeviceTriggerCard('completion_layer_changed').trigger(this, 
             { 
-              'Completion layer %': this.printer.job.completion_layer != null ? this.printer.job.completion_layer : 0,
-              'Printer name': this.deviceSettings.name
+              'Completion layer %': this.printer.job.completion_layer != null ? this.printer.job.completion_layer : 0
             }
           )
           .catch( this.error )
           .then( this.log )
-        this.homey.flow.getTriggerCard('completion_layer_changed').trigger(
-          { 
-            'Completion layer %': this.printer.job.completion_layer != null ? this.printer.job.completion_layer : 0,
-            'Printer name': this.deviceSettings.name
-          }
-        )
-        .catch( this.error )
-        .then( this.log )
       }
 
       if(this.printer.memory.completion_time != this.printer.job.completion_time ){
         this.printer.memory.completion_time = this.printer.job.completion_time;
-        this.homey.flow.getTriggerCard('completion_time_changed').trigger( 
+        this.homey.flow.getDeviceTriggerCard('completion_time_changed').trigger( this,
             { 
-              'Completion time %': this.printer.job.completion_time != null ? this.printer.job.completion_time : 0,
-              'Printer name': this.deviceSettings.name
+              'Completion time %': this.printer.job.completion_time != null ? this.printer.job.completion_time : 0
             }
           )
           .catch( this.error )
@@ -241,8 +336,10 @@ class PrinterDevice extends Homey.Device {
     }
     
     // Update memory
-    this.setJobStart();
     this.printer.memory.state = this.printer.state.cur;
+    if(this.getCapabilities().find(x => x == "printer_temp_chamber") != null){
+      this.printer.memory.chamber_temp = this.printer.job.chamber_temp;
+    }
     this.printer.memory.completion_layer = this.printer.job.completion_layer;
     this.printer.memory.completion_time = this.printer.job.completion_time;
 
@@ -257,6 +354,12 @@ class PrinterDevice extends Homey.Device {
     
     this.setCompletionLayerValue();
     this.setCompletionTimeValue();
+
+    this.setCapabilityValue('previous_layer', this.printer.job.current_layer > 1 ? (this.printer.job.current_layer - 1) : 0).catch(error => this.log(error));    
+    this.setCapabilityValue('current_layer', this.printer.job.current_layer).catch(error => this.log(error));
+    this.setCapabilityValue('total_layer', this.printer.job.total_layer).catch(error => this.log(error));
+    this.setCapabilityValue('previous_layer_time', this.printer.job.previous_layer_time).catch(error => this.log(error));
+
     
     this.setCapabilityValue('job_layer', this.printer.job.current_layer + " / " + this.printer.job.total_layer).catch(error => this.log(error));
   }

@@ -1,10 +1,11 @@
 {
     "type": "boolean",
     "uiComponent": "button",
+    "uiQuickAction": true,
     "title": {
         "en": "Resume"
     },
-    "getable": true,
+    "getable": false,
     "setable": true,
     "icon": "/drivers/printer/assets/job_resume.svg"
 }

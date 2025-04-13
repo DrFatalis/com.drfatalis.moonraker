@@ -1,12 +1,8 @@
-import Homey from 'homey';
+import Homey, { FlowCard, FlowCardTrigger } from 'homey';
 import axios from 'axios';
 import { PairSession } from 'homey/lib/Driver';
 
 class PrinterDriver extends Homey.Driver {
-
-  _printStartedTrigger: any;
-  _printPausedTrigger: any;
-  _printFinishedTrigger: any;
 
   /**
    * onInit is called when the driver is initialized.
@@ -22,6 +18,12 @@ class PrinterDriver extends Homey.Driver {
 
     this.homey.flow.getConditionCard('is_paused')
     .registerRunListener(async (args, state) => args.device.checkPrinterIsPaused());
+
+    this.homey.flow.getConditionCard('is_cancelled')
+    .registerRunListener(async (args, state) => args.device.checkPrinterIsCancelled());
+
+    this.homey.flow.getConditionCard('is_in_error')
+    .registerRunListener(async (args, state) => args.device.checkPrinterIsInError());
 
     this.log('Printer has been initialized');
   }

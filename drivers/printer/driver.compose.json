@@ -12,8 +12,11 @@
     "job_completion_layer",
     "job_completion_time",
     "job_time",
-    "job_timeleft"
-
+    "job_timeleft",
+    "previous_layer",
+    "current_layer",
+    "total_layer",
+    "previous_layer_time"
   ],
   "platforms": [
     "local"

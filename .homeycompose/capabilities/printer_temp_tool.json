@@ -2,9 +2,12 @@
     "type": "number",
     "uiComponent": "sensor",
     "units": "°C",
+    "min": 0,
+    "decimals": 2,
     "title": {
         "en": "Tool temp"
     },
     "getable": true,
-    "icon": "/drivers/printer/assets/printer_temp_tool.svg"
+    "icon": "/drivers/printer/assets/printer_temp_tool.svg",
+    "insights": true
 }

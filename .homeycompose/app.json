@@ -25,5 +25,10 @@
   "author": {
     "name": "Maxime Salecroix",
     "email": "maxime.salecroix@gmail.com"
+  },
+  "donate": {
+      "paypal": {
+        "username": "drfatalis"
+      }
   }
 }
