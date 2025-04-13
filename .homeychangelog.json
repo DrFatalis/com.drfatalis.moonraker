@@ -25,5 +25,8 @@
   },
   "1.2.2": {
     "en": "Fixing pairing on mobile device"
+  },
+  "1.2.3": {
+    "en": "Insight trends added for few capacities, fix for existing trigger and trigger on chamber temperature added"
   }
 }
