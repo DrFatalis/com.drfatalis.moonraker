@@ -28,5 +28,8 @@
   },
   "1.2.3": {
     "en": "Insight trends added for few capacities, fix for existing trigger and trigger on chamber temperature added"
+  },
+  "1.2.4": {
+    "en": "Patch for insight trends"
   }
 }

@@ -1,6 +1,6 @@
 {
   "id": "com.drfatalis.moonraker",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#3c4b5a",
@@ -16,6 +16,15 @@
   "category": [
     "tools"
   ],
+  "tags": {
+    "en": [
+      "3D printer",
+      "Moonraker",
+      "Klipper",
+      "Fluidd",
+      "Mainsail"
+    ]
+  },
   "permissions": [],
   "images": {
     "small": "/assets/images/small.png",
@@ -23,12 +32,21 @@
     "xlarge": "/assets/images/xlarge.png"
   },
   "author": {
-    "name": "Maxime Salecroix",
-    "email": "maxime.salecroix@gmail.com"
+    "name": "Maxime Salecroix"
   },
-  "donate": {
-    "paypal": {
-      "username": "drfatalis"
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "drfatalis"
+      },
+      "githubSponsors": {
+        "username": "DrFatalis"
+      }
     }
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/DrFatalis/com.drfatalis.moonraker/issues"
+  },
+  "homeyCommunityTopicId": 112125,
+  "source": "https://github.com/DrFatalis/com.drfatalis.moonraker"
 }
