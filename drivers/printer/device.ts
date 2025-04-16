@@ -272,7 +272,6 @@ class PrinterDevice extends Homey.Device {
     }
     else {
       if(this.printer.memory.state != this.printer.state.cur ){
-        this.printer.memory.state = this.printer.state.cur;
         switch (this.printer.state.cur) {
          case Data_Keys.statePrinting:
             this.homey.flow.getDeviceTriggerCard('job_start').trigger(this);
@@ -282,14 +281,18 @@ class PrinterDevice extends Homey.Device {
             this.setJobHold(); 
           case Data_Keys.stateComplete:
           case Data_Keys.stateStandby:
-            this.homey.flow.getDeviceTriggerCard('job_complete').trigger(this);
-            this.setJobComplete(); 
+            if(this.printer.memory.state != Data_Keys.stateStandby && this.printer.memory.state != Data_Keys.stateComplete){
+              this.homey.flow.getDeviceTriggerCard('job_complete').trigger(this);
+              this.setJobComplete();
+            }
           case Data_Keys.stateError:
             this.homey.flow.getDeviceTriggerCard('job_error').trigger(this);
             this.setJobError();
           case Data_Keys.stateCancelled:
             this.homey.flow.getDeviceTriggerCard('job_cancelled').trigger(this);
             this.setJobCancelled();
+          
+          this.printer.memory.state = this.printer.state.cur;
         }
       }
 
