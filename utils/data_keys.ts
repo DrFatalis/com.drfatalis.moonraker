@@ -7,7 +7,7 @@ export class Data_Keys {
     static stateError = "error";
     static stateCancelled = "cancelled";
     
-    static urlQuery = "/printer/objects/query?print_stats&extruder=target,temperature&heater_bed=target,temperature&temperature_sensor+chamber_temp=temperature"
+    static urlQuery = "/printer/objects/query?print_stats&extruder=target,temperature&heater_bed=target,temperature&temperature_sensor+chamber_temp=temperature&temperature_fan+chamber_fan=target,temperature"
     static urlMetadataFilename = "/server/files/metadata?filename=";
     static urlPauseJob = "/printer/print/pause";
     static urlResumeJob = "/printer/print/resume";

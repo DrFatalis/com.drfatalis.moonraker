@@ -303,11 +303,12 @@ class PrinterDevice extends Homey.Device {
       }
 
       if(this.getCapabilities().find(x => x == "printer_temp_chamber") != null){
-        if(this.printer.memory.chamber_temp != this.printer.job.chamber_temp ){
-          this.printer.memory.chamber_temp = this.printer.job.chamber_temp;
+        if(this.printer.memory.chamber_temp != this.printer.temp.chamber.actual ){
+          this.printer.memory.chamber_temp = this.printer.temp.chamber.actual;
           this.homey.flow.getDeviceTriggerCard('chamber_temp_changed').trigger(this,
               { 
-                'Chamber temperature': this.printer.job.chamber_temp != null ? this.printer.job.chamber_temp : 0
+                'Chamber temperature': this.printer.temp.chamber.actual != null ? this.printer.temp.chamber.actual : 0,
+                'Chamber target': this.printer.temp.chamber.target != null ? this.printer.temp.chamber.target : 0,
               }
             )
             .catch( this.error )
@@ -394,6 +395,7 @@ class PrinterDevice extends Homey.Device {
                     this.printer.temp.bed.target = response.data.result.status.heater_bed.target != null ? response.data.result.status.heater_bed.target : 0;
 
                     this.printer.temp.chamber.actual = response.data.result.status["temperature_sensor chamber_temp"].temperature != null ? response.data.result.status["temperature_sensor chamber_temp"].temperature : 0;
+                    this.printer.temp.chamber.target = response.data.result.status["temperature_fan chamber_fan"].target != null ? response.data.result.status["temperature_fan chamber_fan"].target : 0;
                   }
                   else{
                     this.log("Device not reachable");

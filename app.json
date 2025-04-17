@@ -64,6 +64,14 @@
               "en": "Chamber temperature"
             },
             "example": 5
+          },
+          {
+            "name": "Chamber target",
+            "type": "number",
+            "title": {
+              "en": "Chamber target"
+            },
+            "example": 5
           }
         ],
         "id": "chamber_temp_changed",
