@@ -34,5 +34,8 @@
   },
   "1.2.5": {
     "en": "Chamber temp. changed trigger get an additionnal token so the target temperature from chamber fan is shared"
+  },
+  "1.2.6": {
+    "en": "polling rate change "
   }
 }
