@@ -17,7 +17,6 @@
       "id": "pollingRate",
       "type": "number",
       "label": { "en": "Polling rate" },
-      "value": 30,
       "min": 5,
       "max": 600,
       "units": { "en": "seconds" }
