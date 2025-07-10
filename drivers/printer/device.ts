@@ -432,7 +432,7 @@ class PrinterDevice extends Homey.Device {
 
       this.updateCapabilities();
 
-      await delay( this.deviceSettings.pollingRate != null ? parseInt(this.deviceSettings.pollingRate)*1000 : 30*1000);
+      await delay( this.deviceSettings.pollingRate != null ? this.deviceSettings.pollingRate*1000 : 30*1000);
       //this.log(this.printer);
     }
   }
