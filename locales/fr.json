@@ -4,6 +4,8 @@
     "device_unavailable": "URL n'est pas accessible",
     "pair": {
       "title": "Moonraker Printer Settings",
+      "alertURL": "URL non valide, http:// n'est pas necessaire. Exemple: 192.168.0.xxx:7125",
+      "alertPollingRate": "Polling rate doit être entre 1 et 3600 secondes",
       "description": "Veuillez configurer l'application",
       "moonrakerServerUrl": "Moonraker IP:Port (http n'est pas nécessaire)",
       "moonrakerPrinterName": "Nom de l'imprimante",

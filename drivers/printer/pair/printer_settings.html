@@ -4,23 +4,37 @@
 
     var addElement = document.getElementById("add");
     addElement.addEventListener("click", function (e) {
-        if(document.getElementById('moonrakerPrinterName').value != "" && document.getElementById('moonrakerServerUrl').value != ""){
+        const printName = document.getElementById('moonrakerPrinterName').value;
+        const url = document.getElementById('moonrakerServerUrl').value;
+        const pollingRate = parseInt(document.getElementById('moonrakerPollingRate').value, 10);
+        const hasChamberTempSensor = document.getElementById('moonrakerHasChamberTempSensor').checked; 
+
+        if (/^https?:\/\/.+$/.test(url)) {
+            Homey.alert(Homey.__("pair.alertURL"));
+            return;
+        }
+        if (isNaN(pollingRate) || pollingRate < 1 || pollingRate > 3600) {
+            Homey.alert(Homey.__("pair.alertPollingRate"));
+            return;
+        }
+
+        if(printName != "" && url != ""){
             Homey.createDevice({
-                name: document.getElementById('moonrakerPrinterName').value.replace(" ", "-"),
+                name: printName.replace(" ", "-"),
                 data: {
-                    id: '"gapps-' + document.getElementById('moonrakerPrinterName').value + '"',
+                    id: '"gapps-' + printName + '"',
                 },
                 store: {
-                    name:                   document.getElementById('moonrakerPrinterName').value,
-                    url:                    document.getElementById('moonrakerServerUrl').value,
-                    pollingRate:            document.getElementById('moonrakerPollingRate').value,
-                    hasChamberTempSensor:   document.getElementById('moonrakerHasChamberTempSensor').value
+                    name:                   printName,
+                    url:                    url,
+                    pollingRate:            pollingRate,
+                    hasChamberTempSensor:   hasChamberTempSensor
                 },
                 settings: {
-                    name:                   document.getElementById('moonrakerPrinterName').value,
-                    url:                    document.getElementById('moonrakerServerUrl').value,
-                    pollingRate:            document.getElementById('moonrakerPollingRate').value,
-                    hasChamberTempSensor:   document.getElementById('moonrakerHasChamberTempSensor').value
+                    name:                   printName,
+                    url:                    url,
+                    pollingRate:            pollingRate,
+                    hasChamberTempSensor:   hasChamberTempSensor
                 }
             })
             .then(function (result) {
@@ -48,7 +62,7 @@
         </div>
         <div class="homey-form-group">
             <label class="homey-form-label" for="moonrakerPollingRate" data-i18n="pair.moonrakerPollingRate"></label>
-            <input class="homey-form-input" id="moonrakerPollingRate" type="number" value="30" step="1"/>
+            <input class="homey-form-input" id="moonrakerPollingRate" type="number" value="5" step="1"/>
         </div>
         <label class="homey-form-checkbox">
             <input class="homey-form-checkbox-input" type="checkbox" id="moonrakerHasChamberTempSensor"/>
