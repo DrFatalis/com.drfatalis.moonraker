@@ -37,5 +37,8 @@
   },
   "1.2.6": {
     "en": "polling rate change "
+  },
+  "1.2.7": {
+    "en": "Device parameter datatype and format check"
   }
 }
