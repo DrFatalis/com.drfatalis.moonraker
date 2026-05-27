@@ -1,0 +1,11 @@
+{
+  "type": "number",
+  "title": { "en": "Hotend Target" },
+  "units": { "en": "°C" },
+  "min": 0,
+  "decimals": 1,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/drivers/printer/assets/printer_temp_tool_target.svg"
+}

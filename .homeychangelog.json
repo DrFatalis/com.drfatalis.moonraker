@@ -40,5 +40,8 @@
   },
   "1.2.7": {
     "en": "Device parameter datatype and format check"
+  },
+  "2.0.0": {
+    "en": "Complete rewrite: WebSocket-based connection (no more polling), dynamic sensor discovery, new flow actions (cancel, emergency stop, GCode), new triggers (status changed, temp reached), backward-compatible trigger IDs preserved"
   }
 }

@@ -1,32 +1,24 @@
 [
-    {
-      "id": "name",
-      "type": "text",
-      "label": { "en": "Name" },
-      "value": "Ender3",
-      "hint": { "en": "The name of the printer." }
-    },
-    {
-      "id": "url",
-      "type": "text",
-      "label": { "en": "URL" },
-      "value": "192.168.0.xxx:7125",
-      "hint": { "en": "Moonraker server URL" }
-    },
-    {
-      "id": "pollingRate",
-      "type": "number",
-      "label": { "en": "Polling rate" },
-      "value": 5,
-      "min": 1,
-      "max": 3600,
-      "units": { "en": "seconds" }
-    },
-    {
-      "id": "hasChamberTempSensor",
-      "type": "checkbox",
-      "label": { "en": "Has chamber temp. sensor" },
-      "value": false,
-      "units": { "en": "" }
-    }
-  ]
+  {
+    "id": "address",
+    "type": "text",
+    "label": { "en": "IP Address or Hostname" },
+    "value": "",
+    "hint": { "en": "Moonraker server IP address or hostname (e.g. 192.168.1.100)" }
+  },
+  {
+    "id": "port",
+    "type": "number",
+    "label": { "en": "Port" },
+    "value": 7125,
+    "min": 1,
+    "max": 65535
+  },
+  {
+    "id": "api_key",
+    "type": "text",
+    "label": { "en": "API Key" },
+    "value": "",
+    "hint": { "en": "Moonraker API key (leave empty if not required)" }
+  }
+]

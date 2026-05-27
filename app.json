@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.drfatalis.moonraker",
-  "version": "1.2.7",
+  "version": "2.0.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#3c4b5a",
@@ -53,6 +53,213 @@
   "flow": {
     "triggers": [
       {
+        "id": "job_start",
+        "title": {
+          "en": "Print job starts"
+        },
+        "tokens": [
+          {
+            "name": "job_name",
+            "type": "string",
+            "title": {
+              "en": "Job name"
+            },
+            "example": "benchy.gcode"
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "job_complete",
+        "title": {
+          "en": "Print job completes"
+        },
+        "tokens": [
+          {
+            "name": "job_name",
+            "type": "string",
+            "title": {
+              "en": "Job name"
+            },
+            "example": "benchy.gcode"
+          },
+          {
+            "name": "duration",
+            "type": "number",
+            "title": {
+              "en": "Duration (min)"
+            },
+            "example": 120
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "job_hold",
+        "title": {
+          "en": "Print job holds"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "job_cancelled",
+        "title": {
+          "en": "Print job cancelled"
+        },
+        "tokens": [
+          {
+            "name": "job_name",
+            "type": "string",
+            "title": {
+              "en": "Job name"
+            },
+            "example": "benchy.gcode"
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "job_error",
+        "title": {
+          "en": "Print job is in error"
+        },
+        "tokens": [
+          {
+            "name": "job_name",
+            "type": "string",
+            "title": {
+              "en": "Job name"
+            },
+            "example": "benchy.gcode"
+          },
+          {
+            "name": "error",
+            "type": "string",
+            "title": {
+              "en": "Error message"
+            },
+            "example": "Extruder temperature too low"
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "printer_error",
+        "title": {
+          "en": "Printer encountered an error"
+        },
+        "tokens": [
+          {
+            "name": "error_message",
+            "type": "string",
+            "title": {
+              "en": "Error message"
+            },
+            "example": "Klippy entered shutdown state"
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "status_changed",
+        "title": {
+          "en": "Printer status changed"
+        },
+        "tokens": [
+          {
+            "name": "status",
+            "type": "string",
+            "title": {
+              "en": "New status"
+            },
+            "example": "printing"
+          },
+          {
+            "name": "previous_status",
+            "type": "string",
+            "title": {
+              "en": "Previous status"
+            },
+            "example": "standby"
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "temperature_reached",
+        "title": {
+          "en": "A temperature sensor reached its target"
+        },
+        "tokens": [
+          {
+            "name": "sensor_name",
+            "type": "string",
+            "title": {
+              "en": "Sensor name"
+            },
+            "example": "Hotend"
+          },
+          {
+            "name": "temperature",
+            "type": "number",
+            "title": {
+              "en": "Temperature (°C)"
+            },
+            "example": 200
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "chamber_temp_changed",
         "title": {
           "en": "Chamber temp. changed"
         },
@@ -63,7 +270,7 @@
             "title": {
               "en": "Chamber temperature"
             },
-            "example": 5
+            "example": 40
           },
           {
             "name": "Chamber target",
@@ -71,10 +278,9 @@
             "title": {
               "en": "Chamber target"
             },
-            "example": 5
+            "example": 45
           }
         ],
-        "id": "chamber_temp_changed",
         "args": [
           {
             "type": "device",
@@ -84,6 +290,7 @@
         ]
       },
       {
+        "id": "completion_layer_changed",
         "title": {
           "en": "Completion changed (layer)"
         },
@@ -94,10 +301,9 @@
             "title": {
               "en": "Completion % (layer)"
             },
-            "example": 5
+            "example": 50
           }
         ],
-        "id": "completion_layer_changed",
         "args": [
           {
             "type": "device",
@@ -107,6 +313,7 @@
         ]
       },
       {
+        "id": "completion_time_changed",
         "title": {
           "en": "Completion changed (time)"
         },
@@ -117,75 +324,9 @@
             "title": {
               "en": "Completion % (time)"
             },
-            "example": 5
+            "example": 50
           }
         ],
-        "id": "completion_time_changed",
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=printer"
-          }
-        ]
-      },
-      {
-        "title": {
-          "en": "Print job cancelled"
-        },
-        "id": "job_cancelled",
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=printer"
-          }
-        ]
-      },
-      {
-        "title": {
-          "en": "Print job completes"
-        },
-        "id": "job_complete",
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=printer"
-          }
-        ]
-      },
-      {
-        "title": {
-          "en": "Print job is in error"
-        },
-        "id": "job_error",
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=printer"
-          }
-        ]
-      },
-      {
-        "title": {
-          "en": "Print job holds"
-        },
-        "id": "job_hold",
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=printer"
-          }
-        ]
-      },
-      {
-        "title": {
-          "en": "Print job starts"
-        },
-        "id": "job_start",
         "args": [
           {
             "type": "device",
@@ -196,6 +337,19 @@
       }
     ],
     "conditions": [
+      {
+        "id": "is_printing",
+        "title": {
+          "en": "!{{Is|Isn't}} printing"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
       {
         "id": "is_standby",
         "title": {
@@ -213,19 +367,6 @@
         "id": "is_paused",
         "title": {
           "en": "!{{Is|Isn't}} paused"
-        },
-        "args": [
-          {
-            "type": "device",
-            "name": "device",
-            "filter": "driver_id=printer"
-          }
-        ]
-      },
-      {
-        "id": "is_printing",
-        "title": {
-          "en": "!{{Is|Isn't}} printing"
         },
         "args": [
           {
@@ -260,6 +401,115 @@
             "filter": "driver_id=printer"
           }
         ]
+      },
+      {
+        "id": "job_progress_above",
+        "title": {
+          "en": "!{{Job progress is|Job progress is not}} above"
+        },
+        "titleFormatted": {
+          "en": "!{{Job progress is|Job progress is not}} above [[progress]]%"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          },
+          {
+            "name": "progress",
+            "type": "number",
+            "min": 0,
+            "max": 100,
+            "step": 1,
+            "label": {
+              "en": "%"
+            },
+            "placeholder": {
+              "en": "50"
+            }
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "pause_job",
+        "title": {
+          "en": "Pause the current print job"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "resume_job",
+        "title": {
+          "en": "Resume the current print job"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "cancel_job",
+        "title": {
+          "en": "Cancel the current print job"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "emergency_stop",
+        "title": {
+          "en": "Emergency stop the printer"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          }
+        ]
+      },
+      {
+        "id": "send_gcode",
+        "title": {
+          "en": "Send a GCode command"
+        },
+        "titleFormatted": {
+          "en": "Send GCode command [[gcode]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=printer"
+          },
+          {
+            "name": "gcode",
+            "type": "text",
+            "label": {
+              "en": "GCode command"
+            },
+            "placeholder": {
+              "en": "G28"
+            }
+          }
+        ]
       }
     ]
   },
@@ -270,20 +520,30 @@
       },
       "class": "other",
       "capabilities": [
-        "printer_state",
-        "printer_temp_tool",
-        "printer_temp_chamber",
-        "printer_temp_bed",
-        "job_layer",
+        "printer_status",
+        "printer_job_name",
+        "printer_job_progress",
+        "printer_job_eta",
+        "printer_job_layer",
+        "printer_hotend_temperature",
+        "printer_bed_temperature",
+        "printer_hotend_target",
+        "printer_bed_target",
         "job_completion_layer",
         "job_completion_time",
         "job_time",
-        "job_timeleft",
-        "previous_layer",
         "current_layer",
         "total_layer",
         "previous_layer_time"
       ],
+      "capabilitiesOptions": {
+        "printer_hotend_target": {
+          "icon": "/drivers/printer/assets/printer_temp_tool_target.svg"
+        },
+        "printer_bed_target": {
+          "icon": "/drivers/printer/assets/printer_temp_bed_target.svg"
+        }
+      },
       "platforms": [
         "local"
       ],
@@ -297,55 +557,52 @@
       },
       "pair": [
         {
-          "id": "printer_settings"
+          "id": "connect"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
         }
       ],
       "id": "printer",
       "settings": [
         {
-          "id": "name",
+          "id": "address",
           "type": "text",
           "label": {
-            "en": "Name"
+            "en": "IP Address or Hostname"
           },
-          "value": "Ender3",
+          "value": "",
           "hint": {
-            "en": "The name of the printer."
+            "en": "Moonraker server IP address or hostname (e.g. 192.168.1.100)"
           }
         },
         {
-          "id": "url",
-          "type": "text",
-          "label": {
-            "en": "URL"
-          },
-          "value": "192.168.0.xxx:7125",
-          "hint": {
-            "en": "Moonraker server URL"
-          }
-        },
-        {
-          "id": "pollingRate",
+          "id": "port",
           "type": "number",
           "label": {
-            "en": "Polling rate"
+            "en": "Port"
           },
-          "value": 5,
+          "value": 7125,
           "min": 1,
-          "max": 3600,
-          "units": {
-            "en": "seconds"
-          }
+          "max": 65535
         },
         {
-          "id": "hasChamberTempSensor",
-          "type": "checkbox",
+          "id": "api_key",
+          "type": "text",
           "label": {
-            "en": "Has chamber temp. sensor"
+            "en": "API Key"
           },
-          "value": false,
-          "units": {
-            "en": ""
+          "value": "",
+          "hint": {
+            "en": "Moonraker API key (leave empty if not required)"
           }
         }
       ]
@@ -385,36 +642,6 @@
       "getable": true,
       "icon": "/drivers/printer/assets/job_completion_time.svg"
     },
-    "job_layer": {
-      "type": "string",
-      "title": {
-        "en": "Layer"
-      },
-      "getable": true,
-      "icon": "/drivers/printer/assets/job_layer.svg"
-    },
-    "job_pause": {
-      "type": "boolean",
-      "uiComponent": "button",
-      "uiQuickAction": true,
-      "title": {
-        "en": "Pause"
-      },
-      "getable": false,
-      "setable": true,
-      "icon": "/drivers/printer/assets/job_pause.svg"
-    },
-    "job_resume": {
-      "type": "boolean",
-      "uiComponent": "button",
-      "uiQuickAction": true,
-      "title": {
-        "en": "Resume"
-      },
-      "getable": false,
-      "setable": true,
-      "icon": "/drivers/printer/assets/job_resume.svg"
-    },
     "job_time": {
       "type": "number",
       "uiComponent": "sensor",
@@ -424,29 +651,6 @@
       },
       "getable": true,
       "icon": "/drivers/printer/assets/job_time.svg"
-    },
-    "job_timeleft": {
-      "type": "number",
-      "uiComponent": "sensor",
-      "units": "min",
-      "title": {
-        "en": "Est. Remaining time"
-      },
-      "getable": true,
-      "icon": "/drivers/printer/assets/job_timeleft.svg"
-    },
-    "previous_layer": {
-      "type": "number",
-      "uiComponent": null,
-      "units": " ",
-      "min": 0,
-      "decimals": 0,
-      "title": {
-        "en": "Previous layer"
-      },
-      "getable": true,
-      "icon": "/drivers/printer/assets/printer_temp_bed.svg",
-      "insights": true
     },
     "previous_layer_time": {
       "type": "number",
@@ -461,52 +665,129 @@
       "icon": "/drivers/printer/assets/printer_temp_bed.svg",
       "insights": true
     },
-    "printer_state": {
-      "type": "string",
-      "title": {
-        "en": "State"
-      },
-      "getable": true,
-      "icon": "/drivers/printer/assets/printer_state.svg"
-    },
-    "printer_temp_bed": {
+    "printer_bed_target": {
       "type": "number",
-      "uiComponent": "sensor",
-      "units": "°C",
-      "min": 0,
-      "decimals": 2,
       "title": {
-        "en": "Bed temp"
+        "en": "Bed Target"
       },
+      "units": {
+        "en": "°C"
+      },
+      "min": 0,
+      "decimals": 1,
       "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/printer_temp_bed_target.svg"
+    },
+    "printer_bed_temperature": {
+      "type": "number",
+      "title": {
+        "en": "Bed Temperature"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "min": 0,
+      "decimals": 1,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
       "icon": "/drivers/printer/assets/printer_temp_bed.svg",
       "insights": true
     },
-    "printer_temp_chamber": {
+    "printer_hotend_target": {
       "type": "number",
-      "uiComponent": "sensor",
-      "units": "°C",
-      "min": 0,
-      "decimals": 2,
       "title": {
-        "en": "Chamber temp"
+        "en": "Hotend Target"
       },
+      "units": {
+        "en": "°C"
+      },
+      "min": 0,
+      "decimals": 1,
       "getable": true,
-      "icon": "/drivers/printer/assets/printer_temp_chamber.svg",
-      "insights": true
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/printer_temp_tool_target.svg"
     },
-    "printer_temp_tool": {
+    "printer_hotend_temperature": {
       "type": "number",
-      "uiComponent": "sensor",
-      "units": "°C",
-      "min": 0,
-      "decimals": 2,
       "title": {
-        "en": "Tool temp"
+        "en": "Hotend Temperature"
       },
+      "units": {
+        "en": "°C"
+      },
+      "min": 0,
+      "decimals": 1,
       "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
       "icon": "/drivers/printer/assets/printer_temp_tool.svg",
       "insights": true
+    },
+    "printer_job_eta": {
+      "type": "number",
+      "title": {
+        "en": "ETA"
+      },
+      "units": {
+        "en": "min"
+      },
+      "min": 0,
+      "decimals": 0,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/job_timeleft.svg"
+    },
+    "printer_job_layer": {
+      "type": "string",
+      "title": {
+        "en": "Layer"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/job_layer.svg"
+    },
+    "printer_job_name": {
+      "type": "string",
+      "title": {
+        "en": "Current Job"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/job_layer.svg"
+    },
+    "printer_job_progress": {
+      "type": "number",
+      "title": {
+        "en": "Progress"
+      },
+      "units": {
+        "en": "%"
+      },
+      "min": 0,
+      "max": 100,
+      "decimals": 1,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/job_completion.svg",
+      "insights": true
+    },
+    "printer_status": {
+      "type": "string",
+      "title": {
+        "en": "Status"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/printer_state.svg"
     },
     "total_layer": {
       "type": "number",

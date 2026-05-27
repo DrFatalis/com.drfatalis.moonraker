@@ -1,0 +1,8 @@
+{
+  "type": "string",
+  "title": { "en": "Status" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/drivers/printer/assets/printer_state.svg"
+}

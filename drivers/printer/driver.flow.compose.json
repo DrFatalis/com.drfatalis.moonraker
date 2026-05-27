@@ -1,118 +1,227 @@
 {
-    "triggers": [
+  "triggers": [
+    {
+      "id": "job_start",
+      "title": { "en": "Print job starts" },
+      "tokens": [
         {
-            "title": {
-                "en": "Chamber temp. changed"
-            },
-            "tokens": [
-                {
-                "name": "Chamber temperature",
-                "type": "number",
-                "title": {
-                    "en": "Chamber temperature"
-                },
-                "example": 5
-                },
-                {
-                    "name": "Chamber target",
-                    "type": "number",
-                    "title": {
-                        "en": "Chamber target"
-                    },
-                    "example": 5
-                    }
-            ],
-            "id": "chamber_temp_changed"
-            },
-            {
-            "title": {
-                "en": "Completion changed (layer)"
-            },
-            "tokens": [
-                {
-                "name": "Completion layer %",
-                "type": "number",
-                "title": {
-                    "en": "Completion % (layer)"
-                },
-                "example": 5
-                }
-            ],
-            "id": "completion_layer_changed"
-            },
-            {
-            "title": {
-                "en": "Completion changed (time)"
-            },
-            "tokens": [
-                {
-                "name": "Completion time %",
-                "type": "number",
-                "title": {
-                    "en": "Completion % (time)"
-                },
-                "example": 5
-                }
-            ],
-            "id": "completion_time_changed"
-            },
-            {
-            "title": {
-                "en": "Print job cancelled"
-            },
-            "id": "job_cancelled"
-            },
-            {
-            "title": {
-                "en": "Print job completes"
-            },
-            "id": "job_complete"
-            },
-            {
-            "title": {
-                "en": "Print job is in error"
-            },
-            "id": "job_error"
-            },
-            {
-            "title": {
-                "en": "Print job holds"
-            },
-            "id": "job_hold"
-            },
-            {
-            "title": {
-                "en": "Print job starts"
-            },
-            "id": "job_start"
+          "name": "job_name",
+          "type": "string",
+          "title": { "en": "Job name" },
+          "example": "benchy.gcode"
         }
-    ],
-    "conditions": [
+      ]
+    },
+    {
+      "id": "job_complete",
+      "title": { "en": "Print job completes" },
+      "tokens": [
         {
-            "id": "is_standby",
-            "title": {
-                "en": "!{{Is|Isn't}} standby"
-            }
-        },{
-            "id": "is_paused",
-            "title": {
-                "en": "!{{Is|Isn't}} paused"
-            }
-        },{
-            "id": "is_printing",
-            "title": {
-                "en": "!{{Is|Isn't}} printing"
-            }
-        },{
-            "id": "is_in_error",
-            "title": {
-                "en": "!{{Is|Isn't}} in error"
-            }
-        },{
-            "id": "is_cancelled",
-            "title": {
-                "en": "!{{Is|Isn't}} cancelled"
-            }
+          "name": "job_name",
+          "type": "string",
+          "title": { "en": "Job name" },
+          "example": "benchy.gcode"
+        },
+        {
+          "name": "duration",
+          "type": "number",
+          "title": { "en": "Duration (min)" },
+          "example": 120
         }
-    ]
+      ]
+    },
+    {
+      "id": "job_hold",
+      "title": { "en": "Print job holds" }
+    },
+    {
+      "id": "job_cancelled",
+      "title": { "en": "Print job cancelled" },
+      "tokens": [
+        {
+          "name": "job_name",
+          "type": "string",
+          "title": { "en": "Job name" },
+          "example": "benchy.gcode"
+        }
+      ]
+    },
+    {
+      "id": "job_error",
+      "title": { "en": "Print job is in error" },
+      "tokens": [
+        {
+          "name": "job_name",
+          "type": "string",
+          "title": { "en": "Job name" },
+          "example": "benchy.gcode"
+        },
+        {
+          "name": "error",
+          "type": "string",
+          "title": { "en": "Error message" },
+          "example": "Extruder temperature too low"
+        }
+      ]
+    },
+    {
+      "id": "printer_error",
+      "title": { "en": "Printer encountered an error" },
+      "tokens": [
+        {
+          "name": "error_message",
+          "type": "string",
+          "title": { "en": "Error message" },
+          "example": "Klippy entered shutdown state"
+        }
+      ]
+    },
+    {
+      "id": "status_changed",
+      "title": { "en": "Printer status changed" },
+      "tokens": [
+        {
+          "name": "status",
+          "type": "string",
+          "title": { "en": "New status" },
+          "example": "printing"
+        },
+        {
+          "name": "previous_status",
+          "type": "string",
+          "title": { "en": "Previous status" },
+          "example": "standby"
+        }
+      ]
+    },
+    {
+      "id": "temperature_reached",
+      "title": { "en": "A temperature sensor reached its target" },
+      "tokens": [
+        {
+          "name": "sensor_name",
+          "type": "string",
+          "title": { "en": "Sensor name" },
+          "example": "Hotend"
+        },
+        {
+          "name": "temperature",
+          "type": "number",
+          "title": { "en": "Temperature (°C)" },
+          "example": 200
+        }
+      ]
+    },
+    {
+      "id": "chamber_temp_changed",
+      "title": { "en": "Chamber temp. changed" },
+      "tokens": [
+        {
+          "name": "Chamber temperature",
+          "type": "number",
+          "title": { "en": "Chamber temperature" },
+          "example": 40
+        },
+        {
+          "name": "Chamber target",
+          "type": "number",
+          "title": { "en": "Chamber target" },
+          "example": 45
+        }
+      ]
+    },
+    {
+      "id": "completion_layer_changed",
+      "title": { "en": "Completion changed (layer)" },
+      "tokens": [
+        {
+          "name": "Completion layer %",
+          "type": "number",
+          "title": { "en": "Completion % (layer)" },
+          "example": 50
+        }
+      ]
+    },
+    {
+      "id": "completion_time_changed",
+      "title": { "en": "Completion changed (time)" },
+      "tokens": [
+        {
+          "name": "Completion time %",
+          "type": "number",
+          "title": { "en": "Completion % (time)" },
+          "example": 50
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "is_printing",
+      "title": { "en": "!{{Is|Isn't}} printing" }
+    },
+    {
+      "id": "is_standby",
+      "title": { "en": "!{{Is|Isn't}} standby" }
+    },
+    {
+      "id": "is_paused",
+      "title": { "en": "!{{Is|Isn't}} paused" }
+    },
+    {
+      "id": "is_in_error",
+      "title": { "en": "!{{Is|Isn't}} in error" }
+    },
+    {
+      "id": "is_cancelled",
+      "title": { "en": "!{{Is|Isn't}} cancelled" }
+    },
+    {
+      "id": "job_progress_above",
+      "title": { "en": "!{{Job progress is|Job progress is not}} above" },
+      "titleFormatted": { "en": "!{{Job progress is|Job progress is not}} above [[progress]]%" },
+      "args": [
+        {
+          "name": "progress",
+          "type": "number",
+          "min": 0,
+          "max": 100,
+          "step": 1,
+          "label": { "en": "%" },
+          "placeholder": { "en": "50" }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "id": "pause_job",
+      "title": { "en": "Pause the current print job" }
+    },
+    {
+      "id": "resume_job",
+      "title": { "en": "Resume the current print job" }
+    },
+    {
+      "id": "cancel_job",
+      "title": { "en": "Cancel the current print job" }
+    },
+    {
+      "id": "emergency_stop",
+      "title": { "en": "Emergency stop the printer" }
+    },
+    {
+      "id": "send_gcode",
+      "title": { "en": "Send a GCode command" },
+      "titleFormatted": { "en": "Send GCode command [[gcode]]" },
+      "args": [
+        {
+          "name": "gcode",
+          "type": "text",
+          "label": { "en": "GCode command" },
+          "placeholder": { "en": "G28" }
+        }
+      ]
+    }
+  ]
 }

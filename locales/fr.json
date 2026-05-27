@@ -1,15 +1,87 @@
 {
-    "device_url": "URL ",
-    "device_notValid": " n'est pas valide",
-    "device_unavailable": "URL n'est pas accessible",
-    "pair": {
-      "title": "Moonraker Printer Settings",
-      "alertURL": "URL non valide, http:// n'est pas necessaire. Exemple: 192.168.0.xxx:7125",
-      "alertPollingRate": "Polling rate doit être entre 1 et 3600 secondes",
-      "description": "Veuillez configurer l'application",
-      "moonrakerServerUrl": "Moonraker IP:Port (http n'est pas nécessaire)",
-      "moonrakerPrinterName": "Nom de l'imprimante",
-      "moonrakerPollingRate": "Intervalle de mise à jour (sec)",
-      "moonrakerHasChamberTempSensor": "Possède un capteur de température pour la chambre"
+  "pair": {
+    "title": "Connexion à Moonraker",
+    "connect": {
+      "label": "Adresse IP ou nom d'hôte",
+      "placeholder": "192.168.1.100"
+    }
+  },
+  "capability": {
+    "printer_status": {
+      "title": "État",
+      "value": {
+        "standby": "En veille",
+        "printing": "En cours d'impression",
+        "paused": "En pause",
+        "complete": "Terminé",
+        "error": "Erreur",
+        "cancelled": "Annulé",
+        "ready": "Prêt",
+        "startup": "Démarrage",
+        "shutdown": "Arrêté",
+        "disconnected": "Déconnecté",
+        "unknown": "Inconnu"
+      }
+    },
+    "printer_job_name": {
+      "title": "Impression en cours"
+    },
+    "printer_job_progress": {
+      "title": "Progression"
+    },
+    "printer_job_eta": {
+      "title": "Temps restant"
+    },
+    "printer_job_layer": {
+      "title": "Couche"
+    },
+    "job_completion_layer": {
+      "title": "Progression (couche)"
+    },
+    "job_completion_time": {
+      "title": "Progression (temps)"
+    },
+    "job_time": {
+      "title": "Temps d'impression"
+    },
+    "current_layer": {
+      "title": "Couche actuelle"
+    },
+    "total_layer": {
+      "title": "Nombre de couches"
+    },
+    "previous_layer_time": {
+      "title": "Temps couche précédente"
+    }
+  },
+  "flow": {
+    "triggers": {
+      "job_start": "L'impression démarre",
+      "job_complete": "L'impression est terminée",
+      "job_hold": "L'impression est en pause",
+      "job_cancelled": "L'impression a été annulée",
+      "job_error": "L'impression est en erreur",
+      "status_changed": "L'état de l'imprimante a changé",
+      "printer_error": "L'imprimante a rencontré une erreur",
+      "temperature_reached": "Un capteur de température a atteint sa cible",
+      "chamber_temp_changed": "Température chambre modifiée",
+      "completion_layer_changed": "Progression modifiée (couche)",
+      "completion_time_changed": "Progression modifiée (temps)"
+    },
+    "conditions": {
+      "is_printing": "L'imprimante est en train d'imprimer",
+      "is_standby": "L'imprimante est en veille",
+      "is_paused": "L'imprimante est en pause",
+      "is_in_error": "L'imprimante est en erreur",
+      "is_cancelled": "L'impression est annulée",
+      "job_progress_above": "La progression de l'impression est supérieure à"
+    },
+    "actions": {
+      "pause_job": "Mettre en pause l'impression",
+      "resume_job": "Reprendre l'impression",
+      "cancel_job": "Annuler l'impression",
+      "emergency_stop": "Arrêt d'urgence de l'imprimante",
+      "send_gcode": "Envoyer une commande GCode"
     }
   }
+}

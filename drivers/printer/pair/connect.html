@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 20px;
+      color: #333;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #444;
+      margin-bottom: 6px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .field:first-child { flex: 2; }
+    .row .field:last-child  { flex: 1; }
+
+    input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s;
+      background: #fafafa;
+    }
+
+    input:focus { border-color: #5c6bc0; background: #fff; }
+
+    .hint {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background: #5c6bc0;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+
+    .btn:hover   { background: #3f51b5; }
+    .btn:active  { background: #303f9f; }
+    .btn:disabled { background: #bbb; cursor: not-allowed; }
+
+    .error {
+      background: #ffeaea;
+      border: 1px solid #f5c6c6;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #c0392b;
+      font-size: 13px;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <p class="subtitle">Enter the address of your Moonraker/Klipper instance</p>
+
+  <div class="row">
+    <div class="field">
+      <label for="address">IP Address / Hostname</label>
+      <input id="address" type="text" placeholder="192.168.1.100" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label for="port">Port</label>
+      <input id="port" type="number" placeholder="7125" value="7125" min="1" max="65535">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="apikey">API Key <span style="font-weight:400;color:#aaa">(optional)</span></label>
+    <input id="apikey" type="password" placeholder="Leave blank if authentication is disabled" autocomplete="off">
+    <div class="hint">Required only if api_key is configured in moonraker.conf</div>
+  </div>
+
+  <button class="btn" id="connectBtn" onclick="connect()">Connect</button>
+  <div class="error" id="errorBox"></div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('address')) document.getElementById('address').value = params.get('address');
+    if (params.get('port'))    document.getElementById('port').value    = params.get('port');
+
+    function showError(msg) {
+      const el = document.getElementById('errorBox');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function hideError() {
+      document.getElementById('errorBox').style.display = 'none';
+    }
+
+    function setLoading(on) {
+      const btn = document.getElementById('connectBtn');
+      btn.disabled = on;
+      btn.innerHTML = on
+        ? '<span class="spinner"></span>Connecting…'
+        : 'Connect';
+    }
+
+    async function connect() {
+      hideError();
+      const address = document.getElementById('address').value.trim();
+      const port    = parseInt(document.getElementById('port').value, 10) || 7125;
+      const apiKey  = document.getElementById('apikey').value.trim();
+
+      if (!address) {
+        showError('Please enter an IP address or hostname.');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const result = await Homey.emit('connect', { address, port, apiKey });
+
+        if (result && result.success) {
+          Homey.nextView();
+        } else {
+          showError((result && result.error) || 'Connection failed. Check IP, port, and API key.');
+        }
+      } catch (err) {
+        showError(err.message || 'Connection error.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') connect();
+    });
+
+    Homey.ready();
+  </script>
+</body>
+</html>

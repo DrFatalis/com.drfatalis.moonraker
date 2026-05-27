@@ -1,15 +1,87 @@
 {
-    "device_url": "URL ",
-    "device_notValid": " is not valid",
-    "device_unavailable": "URL cannot be reached",
-    "pair": {
-      "title": "Moonraker Printer Settings",
-      "alertURL": "Invalid URL, http:// is not required. Example: 192.168.0.xxx:7125",
-      "alertPollingRate": "Polling rate must be between 1 and 3600 seconds",
-      "description": "Please configure the application",
-      "moonrakerServerUrl": "Moonraker IP:Port (no http needed)",
-      "moonrakerPrinterName": "Printer name",
-      "moonrakerPollingRate": "Polling Rate (sec)",
-      "moonrakerHasChamberTempSensor": "Has chamber temp. sensor"
+  "pair": {
+    "title": "Connect to Moonraker",
+    "connect": {
+      "label": "IP Address or Hostname",
+      "placeholder": "192.168.1.100"
+    }
+  },
+  "capability": {
+    "printer_status": {
+      "title": "Status",
+      "value": {
+        "standby": "Standby",
+        "printing": "Printing",
+        "paused": "Paused",
+        "complete": "Complete",
+        "error": "Error",
+        "cancelled": "Cancelled",
+        "ready": "Ready",
+        "startup": "Starting up",
+        "shutdown": "Shutdown",
+        "disconnected": "Disconnected",
+        "unknown": "Unknown"
+      }
+    },
+    "printer_job_name": {
+      "title": "Current Job"
+    },
+    "printer_job_progress": {
+      "title": "Progress"
+    },
+    "printer_job_eta": {
+      "title": "ETA"
+    },
+    "printer_job_layer": {
+      "title": "Layer"
+    },
+    "job_completion_layer": {
+      "title": "Completion (layer)"
+    },
+    "job_completion_time": {
+      "title": "Completion (time)"
+    },
+    "job_time": {
+      "title": "Print Time"
+    },
+    "current_layer": {
+      "title": "Current Layer"
+    },
+    "total_layer": {
+      "title": "Total Layers"
+    },
+    "previous_layer_time": {
+      "title": "Prev. Layer Time"
+    }
+  },
+  "flow": {
+    "triggers": {
+      "job_start": "Print job starts",
+      "job_complete": "Print job completes",
+      "job_hold": "Print job holds",
+      "job_cancelled": "Print job cancelled",
+      "job_error": "Print job is in error",
+      "status_changed": "Printer status changed",
+      "printer_error": "Printer encountered an error",
+      "temperature_reached": "A temperature sensor reached its target",
+      "chamber_temp_changed": "Chamber temp. changed",
+      "completion_layer_changed": "Completion changed (layer)",
+      "completion_time_changed": "Completion changed (time)"
+    },
+    "conditions": {
+      "is_printing": "Printer is printing",
+      "is_standby": "Printer is standby",
+      "is_paused": "Printer is paused",
+      "is_in_error": "Printer is in error",
+      "is_cancelled": "Printer is cancelled",
+      "job_progress_above": "Job progress is above"
+    },
+    "actions": {
+      "pause_job": "Pause the current print job",
+      "resume_job": "Resume the current print job",
+      "cancel_job": "Cancel the current print job",
+      "emergency_stop": "Emergency stop the printer",
+      "send_gcode": "Send a GCode command"
     }
   }
+}

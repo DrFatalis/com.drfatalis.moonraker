@@ -1,0 +1,13 @@
+{
+  "type": "number",
+  "title": { "en": "Progress" },
+  "units": { "en": "%" },
+  "min": 0,
+  "max": 100,
+  "decimals": 1,
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "icon": "/drivers/printer/assets/job_completion.svg",
+  "insights": true
+}

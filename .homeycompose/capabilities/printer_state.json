@@ -1,8 +1,0 @@
-{
-    "type": "string",
-    "title": {
-        "en": "State"
-    },
-    "getable": true,
-    "icon": "/drivers/printer/assets/printer_state.svg"
-}

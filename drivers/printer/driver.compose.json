@@ -4,20 +4,30 @@
   },
   "class": "other",
   "capabilities": [
-    "printer_state",
-    "printer_temp_tool",
-    "printer_temp_chamber",
-    "printer_temp_bed",
-    "job_layer",
+    "printer_status",
+    "printer_job_name",
+    "printer_job_progress",
+    "printer_job_eta",
+    "printer_job_layer",
+    "printer_hotend_temperature",
+    "printer_bed_temperature",
+    "printer_hotend_target",
+    "printer_bed_target",
     "job_completion_layer",
     "job_completion_time",
     "job_time",
-    "job_timeleft",
-    "previous_layer",
     "current_layer",
     "total_layer",
     "previous_layer_time"
   ],
+  "capabilitiesOptions": {
+    "printer_hotend_target": {
+      "icon": "/drivers/printer/assets/printer_temp_tool_target.svg"
+    },
+    "printer_bed_target": {
+      "icon": "/drivers/printer/assets/printer_temp_bed_target.svg"
+    }
+  },
   "platforms": [
     "local"
   ],
@@ -29,9 +39,16 @@
     "large": "{{driverAssetsPath}}/images/large.png",
     "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
   },
-  "pair" : [
+  "pair": [
+    { "id": "connect" },
     {
-      "id": "printer_settings"
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
     }
   ]
 }
