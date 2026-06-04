@@ -7,9 +7,4 @@ In Homey, create one or multiple printer device. Each of them needs the server u
 
 For the "Completion (layer)" capability to be working, make sure that your slicer is injecting layer informations (cf. set_print_stats_info in klipper) 
 
-History:
-    v1.1.2: May require your printer device to be recreated
-
-Please report your issues here: https://github.com/DrFatalis/com.drfatalis.moonraker/issues
-
 That's it !

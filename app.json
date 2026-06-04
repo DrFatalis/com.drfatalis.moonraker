@@ -45,6 +45,7 @@
       }
     }
   },
+  "support": "https://github.com/DrFatalis/com.drfatalis.moonraker/issues",
   "bugs": {
     "url": "https://github.com/DrFatalis/com.drfatalis.moonraker/issues"
   },
