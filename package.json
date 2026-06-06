@@ -1,6 +1,6 @@
 {
   "name": "com.drfatalis.moonraker",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "main": "app.js",
   "scripts": {
     "lint": "eslint --ext .js --ignore-path .gitignore ."

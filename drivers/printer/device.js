@@ -37,6 +37,12 @@ class MoonrakerDevice extends Homey.Device {
     this._reconnectTimer = null;
     this._extraSensors   = [];
 
+    // Webcam state
+    this._webcamVideos  = [];
+    this._webcamImages  = [];
+    this._webcamTimers  = [];
+    this._webcamsInited = false;
+
     // State tracking
     this._prevStatus      = null;
     this._prevJobName     = null;
@@ -175,6 +181,7 @@ class MoonrakerDevice extends Homey.Device {
 
   async _disconnect() {
     this._cancelReconnect();
+    this._cleanupWebcams();
     if (this._client) {
       this._client.destroy();
       this._client = null;
@@ -203,6 +210,12 @@ class MoonrakerDevice extends Homey.Device {
     try {
       await this._discoverExtraSensors();
       await this._subscribe();
+
+      if (!this._webcamsInited) {
+        this._webcamsInited = true;
+        await this._initWebcams();
+      }
+
       this.setAvailable().catch(() => {});
     } catch (err) {
       this.error('Init error after connect:', err.message);
@@ -277,6 +290,146 @@ class MoonrakerDevice extends Homey.Device {
 
     this._extraSensors = newSensors;
   }
+
+  // ─── Webcam support ───────────────────────────────────────────────────────────
+
+  _resolveWebcamUrl(url) {
+    if (!url) return null;
+    if (url.includes('://')) return url; // already absolute (http, https, rtsp, rtmp, …)
+    return `${this._client.baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  }
+
+  // If the snapshot URL is a go2rtc /api/frame.jpeg endpoint, derive the HLS .m3u8 URL
+  // from the same host — Homey supports HLS natively as a live video stream.
+  _deriveGo2rtcHlsUrl(resolvedSnapshotUrl) {
+    if (!resolvedSnapshotUrl) return null;
+    try {
+      const u = new URL(resolvedSnapshotUrl);
+      if (u.pathname === '/api/frame.jpeg') {
+        const src = u.searchParams.get('src');
+        if (src) return `${u.protocol}//${u.host}/api/stream.m3u8?src=${encodeURIComponent(src)}`;
+      }
+    } catch {}
+    return null;
+  }
+
+  async _initWebcams() {
+    let webcams = [];
+    try {
+      const data = await this._client.httpGet('/server/webcams/list');
+      webcams = data?.result?.webcams || [];
+    } catch (err) {
+      this.log('Webcam API unavailable (older Moonraker?):', err.message);
+      return;
+    }
+
+    const enabled = webcams.filter(w => w.enabled !== false);
+    if (!enabled.length) {
+      this.log('No enabled webcams found in Moonraker');
+      return;
+    }
+
+    this.log(`Found ${enabled.length} webcam(s)`);
+
+    for (let i = 0; i < enabled.length; i++) {
+      const cam = enabled[i];
+      const id    = `webcam_${i}`;
+      const title = cam.name || `Webcam ${i + 1}`;
+
+      if (cam.service === 'hlsstream' && cam.stream_url) {
+        // Native HLS stream declared in Moonraker config
+        await this._setupWebcamVideo(id, title, cam.stream_url);
+      } else {
+        // For other service types, check if go2rtc is backing the snapshot endpoint.
+        // go2rtc serves snapshots at /api/frame.jpeg?src=NAME and HLS at /api/stream.m3u8?src=NAME.
+        // Homey supports HLS natively (createVideoHLS), so we can show a true live stream
+        // even when Moonraker reports the service type as mjpegstreamer-adaptive or similar.
+        const resolvedSnapshot = cam.snapshot_url ? this._resolveWebcamUrl(cam.snapshot_url) : null;
+        const go2rtcHls = this._deriveGo2rtcHlsUrl(resolvedSnapshot);
+
+        if (go2rtcHls) {
+          this.log(`Webcam "${title}": go2rtc detected, using HLS → ${go2rtcHls}`);
+          await this._setupWebcamVideo(id, title, go2rtcHls);
+        } else if (cam.stream_url && cam.stream_url.startsWith('rtsp://')) {
+          // Direct RTSP stream (e.g. IP cameras, ipstream service)
+          await this._setupWebcamRtsp(id, title, cam.stream_url);
+        } else if (cam.snapshot_url) {
+          // Plain snapshot camera — show refreshing still image
+          await this._setupWebcamSnapshot(id, title, cam.snapshot_url);
+        } else {
+          this.log(`Webcam "${title}" (${cam.service}): no supported stream or snapshot URL, skipping`);
+        }
+      }
+    }
+  }
+
+  async _setupWebcamVideo(id, title, streamUrl) {
+    try {
+      const url = this._resolveWebcamUrl(streamUrl);
+      const video = await this.homey.videos.createVideoHLS();
+      video.registerVideoUrlListener(async () => ({ url }));
+      await this.setCameraVideo(id, title, video);
+      this._webcamVideos.push(video);
+      this.log(`Webcam HLS video registered: "${title}" → ${url}`);
+    } catch (err) {
+      this.error(`Failed to register webcam video "${title}":`, err.message);
+    }
+  }
+
+  async _setupWebcamRtsp(id, title, streamUrl) {
+    try {
+      const url = this._resolveWebcamUrl(streamUrl);
+      const video = await this.homey.videos.createVideoRTSP();
+      video.registerVideoUrlListener(async () => ({ url }));
+      await this.setCameraVideo(id, title, video);
+      this._webcamVideos.push(video);
+      this.log(`Webcam RTSP video registered: "${title}" → ${url}`);
+    } catch (err) {
+      this.error(`Failed to register webcam RTSP video "${title}":`, err.message);
+    }
+  }
+
+  async _setupWebcamSnapshot(id, title, snapshotUrl) {
+    try {
+      const url = this._resolveWebcamUrl(snapshotUrl);
+      const img = await this.homey.images.createImage();
+      img.setStream(async (imageStream) => {
+        try {
+          const headers = {};
+          const apiKey = this.getSettings().api_key;
+          if (apiKey) headers['X-Api-Key'] = apiKey;
+          const res = await fetch(url, { headers });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          imageStream.end(Buffer.from(await res.arrayBuffer()));
+        } catch (err) {
+          this.error(`Webcam snapshot fetch failed (${url}):`, err.message);
+          imageStream.end();
+        }
+      });
+      await this.setCameraImage(id, title, img);
+      this._webcamImages.push(img);
+
+      // Periodically refresh the snapshot so the device card shows a live still
+      const timer = this.homey.setInterval(() => img.update().catch(() => {}), 5000);
+      this._webcamTimers.push(timer);
+      this.log(`Webcam snapshot registered: "${title}" → ${url} (refresh 5 s)`);
+    } catch (err) {
+      this.error(`Failed to register webcam snapshot "${title}":`, err.message);
+    }
+  }
+
+  _cleanupWebcams() {
+    for (const t of this._webcamTimers) this.homey.clearInterval(t);
+    this._webcamTimers = [];
+
+    for (const v of this._webcamVideos) v.unregister().catch(() => {});
+    this._webcamVideos = [];
+
+    this._webcamImages  = [];
+    this._webcamsInited = false;
+  }
+
+  // ─── Dynamic sensor discovery ─────────────────────────────────────────────────
 
   _humanizeLabel(objectName) {
     const skipWords = new Set(['temperature', 'temp', 'sensor', 'fan']);
@@ -391,6 +544,13 @@ class MoonrakerDevice extends Homey.Device {
             : 0;
           this._setCap('job_completion_layer', layerPct);
           this._checkCompletionLayer();
+
+          // Keep the visible layer string in sync: "current / total" when total is known
+          if (this._totalLayer > 0) {
+            this._setCap('printer_job_layer', `${this._currentLayer} / ${this._totalLayer}`);
+          } else if (this._currentLayer > 0) {
+            this._setCap('printer_job_layer', String(this._currentLayer));
+          }
         }
       }
 
@@ -405,8 +565,8 @@ class MoonrakerDevice extends Homey.Device {
         }
       }
 
-      // ── display_status (layer string fallback) ──
-      if (status.display_status !== undefined) {
+      // ── display_status (layer string fallback when print_stats.info has no data) ──
+      if (status.display_status !== undefined && this._totalLayer === 0) {
         const { message } = status.display_status;
         if (message) {
           const m = message.match(/layer\s*(\d+)\s*(?:\/\s*(\d+))?/i);
