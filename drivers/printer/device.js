@@ -309,7 +309,14 @@ class MoonrakerDevice extends Homey.Device {
 
   _resolveWebcamUrl(url) {
     if (!url) return null;
-    if (url.includes('://')) return url; // already absolute (http, https, rtsp, rtmp, …)
+    if (url.includes('://')) {
+      // Crowsnest registers webcam URLs using localhost/127.0.0.1 (the Pi's own
+      // loopback). Replace with the printer's real address so Homey can reach them.
+      return url.replace(
+        /\/\/(localhost|127\.0\.0\.1)(:\d+)?/,
+        `//${this._client.address}$2`,
+      );
+    }
     return `${this._client.baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
@@ -337,7 +344,14 @@ class MoonrakerDevice extends Homey.Device {
       return;
     }
 
-    const enabled = webcams.filter(w => w.enabled !== false);
+    let enabled;
+    try {
+      enabled = webcams.filter(w => w && w.enabled !== false);
+    } catch (err) {
+      this.error('Failed to filter webcam list:', err.message);
+      return;
+    }
+
     if (!enabled.length) {
       this.log('No enabled webcams found in Moonraker');
       return;
@@ -346,33 +360,37 @@ class MoonrakerDevice extends Homey.Device {
     this.log(`Found ${enabled.length} webcam(s)`);
 
     for (let i = 0; i < enabled.length; i++) {
-      const cam = enabled[i];
-      const id    = `webcam_${i}`;
-      const title = cam.name || `Webcam ${i + 1}`;
+      try {
+        const cam = enabled[i];
+        const id    = `webcam_${i}`;
+        const title = cam.name || `Webcam ${i + 1}`;
 
-      if (cam.service === 'hlsstream' && cam.stream_url) {
-        // Native HLS stream declared in Moonraker config
-        await this._setupWebcamVideo(id, title, cam.stream_url);
-      } else {
-        // For other service types, check if go2rtc is backing the snapshot endpoint.
-        // go2rtc serves snapshots at /api/frame.jpeg?src=NAME and HLS at /api/stream.m3u8?src=NAME.
-        // Homey supports HLS natively (createVideoHLS), so we can show a true live stream
-        // even when Moonraker reports the service type as mjpegstreamer-adaptive or similar.
-        const resolvedSnapshot = cam.snapshot_url ? this._resolveWebcamUrl(cam.snapshot_url) : null;
-        const go2rtcHls = this._deriveGo2rtcHlsUrl(resolvedSnapshot);
-
-        if (go2rtcHls) {
-          this.log(`Webcam "${title}": go2rtc detected, using HLS → ${go2rtcHls}`);
-          await this._setupWebcamVideo(id, title, go2rtcHls);
-        } else if (cam.stream_url && cam.stream_url.startsWith('rtsp://')) {
-          // Direct RTSP stream (e.g. IP cameras, ipstream service)
-          await this._setupWebcamRtsp(id, title, cam.stream_url);
-        } else if (cam.snapshot_url) {
-          // Plain snapshot camera — show refreshing still image
-          await this._setupWebcamSnapshot(id, title, cam.snapshot_url);
+        if (cam.service === 'hlsstream' && cam.stream_url) {
+          // Native HLS stream declared in Moonraker config
+          await this._setupWebcamVideo(id, title, cam.stream_url);
         } else {
-          this.log(`Webcam "${title}" (${cam.service}): no supported stream or snapshot URL, skipping`);
+          // For other service types, check if go2rtc is backing the snapshot endpoint.
+          // go2rtc serves snapshots at /api/frame.jpeg?src=NAME and HLS at /api/stream.m3u8?src=NAME.
+          // Homey supports HLS natively (createVideoHLS), so we can show a true live stream
+          // even when Moonraker reports the service type as mjpegstreamer-adaptive or similar.
+          const resolvedSnapshot = cam.snapshot_url ? this._resolveWebcamUrl(cam.snapshot_url) : null;
+          const go2rtcHls = this._deriveGo2rtcHlsUrl(resolvedSnapshot);
+
+          if (go2rtcHls) {
+            this.log(`Webcam "${title}": go2rtc detected, using HLS → ${go2rtcHls}`);
+            await this._setupWebcamVideo(id, title, go2rtcHls);
+          } else if (cam.stream_url && cam.stream_url.startsWith('rtsp://')) {
+            // Direct RTSP stream (e.g. IP cameras, ipstream service)
+            await this._setupWebcamRtsp(id, title, cam.stream_url);
+          } else if (cam.snapshot_url) {
+            // Plain snapshot camera — show refreshing still image
+            await this._setupWebcamSnapshot(id, title, cam.snapshot_url);
+          } else {
+            this.log(`Webcam "${title}" (${cam.service}): no supported stream or snapshot URL, skipping`);
+          }
         }
+      } catch (err) {
+        this.error(`Webcam[${i}] setup error:`, err.message);
       }
     }
   }
