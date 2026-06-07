@@ -49,5 +49,8 @@
   },
   "2.0.2": {
     "en": "Add camera stream support"
+  },
+  "2.0.3": {
+    "en": "Fix reconnection failure after power cut"
   }
 }
