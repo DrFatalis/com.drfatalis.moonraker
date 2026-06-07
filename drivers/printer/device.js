@@ -60,6 +60,10 @@ class MoonrakerDevice extends Homey.Device {
     this._layerChangeTime = Date.now();
     this._prevLayerTime   = 0;
 
+    // Guards against double-firing jobFinished when both notify_job_state_changed
+    // and a status snapshot deliver the 'complete' state.
+    this._jobCompletedFired = false;
+
     // Chamber sensor tracking (for chamber_temp_changed trigger)
     this._chamberSensors  = new Map();  // objectName → last temp
 
@@ -612,6 +616,17 @@ class MoonrakerDevice extends Homey.Device {
         if (state === 'paused') {
           this._triggers.jobHold.trigger(this).catch(() => {});
         }
+
+        // Fallback: fire jobFinished if notify_job_state_changed was missed
+        // (e.g. the job completed while the WebSocket connection was down).
+        if (state === 'complete' && !this._jobCompletedFired) {
+          const jobName = this.getCapabilityValue('printer_job_name') || 'unknown';
+          this._triggers.jobFinished.trigger(this, {
+            job_name: jobName,
+            duration: this._lastJobDuration,
+          }).catch(() => {});
+        }
+        if (state === 'printing') this._jobCompletedFired = false;
       }
 
       if (state === 'error' && message) {
@@ -709,6 +724,7 @@ class MoonrakerDevice extends Homey.Device {
 
     switch (stateName) {
       case 'printing':
+        this._jobCompletedFired = false;
         if (jobName !== this._prevJobName) {
           this._prevJobName     = jobName;
           this._layerChangeTime = Date.now();
@@ -717,6 +733,7 @@ class MoonrakerDevice extends Homey.Device {
         break;
 
       case 'complete':
+        this._jobCompletedFired = true;
         this._triggers.jobFinished.trigger(this, {
           job_name: jobName,
           duration: this._lastJobDuration,
