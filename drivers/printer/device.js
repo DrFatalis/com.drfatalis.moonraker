@@ -33,9 +33,10 @@ class MoonrakerDevice extends Homey.Device {
 
     await this._migrateCapabilities();
 
-    this._client         = null;
-    this._reconnectTimer = null;
-    this._extraSensors   = [];
+    this._client          = null;
+    this._reconnectTimer  = null;
+    this._reconnectCount  = 0;
+    this._extraSensors    = [];
 
     // Webcam state
     this._webcamVideos  = [];
@@ -194,6 +195,8 @@ class MoonrakerDevice extends Homey.Device {
 
   _scheduleReconnect() {
     this._cancelReconnect();
+    this._reconnectCount += 1;
+    this.log(`Reconnect attempt #${this._reconnectCount} in 5 s`);
     this._reconnectTimer = this.homey.setTimeout(() => {
       this._reconnectTimer = null;
       if (this._client && !this._client._destroyed) this._client.connect();
@@ -210,7 +213,12 @@ class MoonrakerDevice extends Homey.Device {
   // ─── Connected handler ────────────────────────────────────────────────────────
 
   async _onConnected() {
-    this.log('Connected to Moonraker');
+    if (this._reconnectCount > 0) {
+      this.log(`Reconnected to Moonraker after ${this._reconnectCount} attempt(s)`);
+    } else {
+      this.log('Connected to Moonraker');
+    }
+    this._reconnectCount = 0;
     try {
       await this._discoverExtraSensors();
       await this._subscribe();
@@ -219,10 +227,12 @@ class MoonrakerDevice extends Homey.Device {
         this._webcamsInited = true;
         await this._initWebcams();
       }
-
-      this.setAvailable().catch(() => {});
     } catch (err) {
       this.error('Init error after connect:', err.message);
+    }
+    // Mark available whenever the WebSocket is up, even if init had a transient error
+    if (this._client && !this._client._destroyed) {
+      this.setAvailable().catch(() => {});
     }
   }
 
