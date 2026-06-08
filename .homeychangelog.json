@@ -61,5 +61,8 @@
   },
   "2.0.6": {
     "en": "Fix for crownest webcam"
+  },
+  "2.0.7": {
+    "en": "Add chamber target temp with unique icon"
   }
 }
