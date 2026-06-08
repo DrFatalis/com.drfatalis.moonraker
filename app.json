@@ -697,6 +697,37 @@
       "icon": "/drivers/printer/assets/printer_temp_bed.svg",
       "insights": true
     },
+    "printer_chamber_target": {
+      "type": "number",
+      "title": {
+        "en": "Chamber Target"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "min": 0,
+      "decimals": 1,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/printer_temp_chamber_target.svg"
+    },
+    "printer_chamber_temperature": {
+      "type": "number",
+      "title": {
+        "en": "Chamber Temperature"
+      },
+      "units": {
+        "en": "°C"
+      },
+      "min": 0,
+      "decimals": 1,
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "icon": "/drivers/printer/assets/printer_temp_chamber.svg",
+      "insights": true
+    },
     "printer_hotend_target": {
       "type": "number",
       "title": {

@@ -112,6 +112,15 @@ class MoonrakerDevice extends Homey.Device {
       }
     }
 
+    // Remove any old dynamic chamber caps that were previously added under measure_temperature.*
+    // (including *_target variants). They are now replaced by the static printer_chamber_* caps.
+    for (const cap of [...this.getCapabilities()]) {
+      if (cap.startsWith('measure_temperature.') && cap.toLowerCase().includes('chamber')) {
+        this.log(`Migrating: removing old chamber capability "${cap}"`);
+        await this.removeCapability(cap).catch(e => this.error(`removeCapability(${cap}):`, e.message));
+      }
+    }
+
     const required = [
       'printer_status', 'printer_job_name', 'printer_job_progress',
       'printer_job_eta', 'printer_job_layer',
@@ -262,23 +271,75 @@ class MoonrakerDevice extends Homey.Device {
     const newSensors = [];
     const extraHeaterPattern = /^extruder[1-9]\d*$/;
 
+    // Pre-select the primary chamber object.
+    // temperature_fan objects carry a target field and are preferred over passive
+    // temperature_sensor objects so that printer_chamber_target is always populated.
+    const chamberObjs = allObjects.filter(o =>
+      TEMP_OBJECT_PREFIXES.some(p => o.startsWith(p)) && o.toLowerCase().includes('chamber')
+    );
+    const primaryChamberObj = chamberObjs.find(o => o.startsWith('temperature_fan'))
+                           || chamberObjs[0];
+    const primaryHasTarget  = primaryChamberObj ? primaryChamberObj.startsWith('temperature_fan') : false;
+
     for (const objName of allObjects) {
       const isExtraHeater = extraHeaterPattern.test(objName);
       const isTempSensor  = TEMP_OBJECT_PREFIXES.some(p => objName.startsWith(p));
       if (!isTempSensor && !isExtraHeater) continue;
 
       const safeName = objName.replace(/[^a-z0-9]/gi, '_').toLowerCase().replace(/_+/g, '_').replace(/^_|_$/g, '');
-      const capId    = `measure_temperature.${safeName}`;
 
-      const isChamber = objName.toLowerCase().includes('chamber');
-      const icon = isChamber
-        ? '/drivers/printer/assets/printer_temp_chamber.svg'
-        : '/drivers/printer/assets/printer_temp.svg';
-
-      newSensors.push({ objectName: objName, capabilityId: capId, label: this._humanizeLabel(objName), icon });
+      if (objName === primaryChamberObj) {
+        // Primary chamber sensor: map to static custom capabilities so Homey uses the
+        // correct SVG icons from the capability definition (setCapabilityOptions cannot
+        // override icons on Homey's built-in measure_temperature type).
+        newSensors.push({
+          objectName: objName,
+          capabilityId: 'printer_chamber_temperature',
+          targetCapabilityId: primaryHasTarget ? 'printer_chamber_target' : undefined,
+          label: this._humanizeLabel(objName),
+        });
+      } else {
+        const capId = `measure_temperature.${safeName}`;
+        const icon  = '/drivers/printer/assets/printer_temp.svg';
+        newSensors.push({ objectName: objName, capabilityId: capId, label: this._humanizeLabel(objName), icon });
+      }
     }
 
-    for (const sensor of newSensors) {
+    // Add or remove static chamber capabilities based on what was discovered.
+    try {
+      if (primaryChamberObj) {
+        if (!this.hasCapability('printer_chamber_temperature')) {
+          this.log('Adding printer_chamber_temperature capability');
+          await this.addCapability('printer_chamber_temperature');
+        }
+        if (primaryHasTarget) {
+          if (!this.hasCapability('printer_chamber_target')) {
+            this.log('Adding printer_chamber_target capability');
+            await this.addCapability('printer_chamber_target');
+          }
+        } else {
+          if (this.hasCapability('printer_chamber_target')) {
+            this.log('Removing printer_chamber_target — primary chamber sensor is not a temperature_fan');
+            await this.removeCapability('printer_chamber_target').catch(() => {});
+          }
+        }
+      } else {
+        for (const cap of ['printer_chamber_temperature', 'printer_chamber_target']) {
+          if (this.hasCapability(cap)) {
+            this.log(`Removing ${cap} — no chamber sensor found`);
+            await this.removeCapability(cap).catch(() => {});
+          }
+        }
+      }
+    } catch (err) {
+      this.error('Failed to manage chamber capabilities:', err.message);
+    }
+
+    // Add / update dynamic measure_temperature.* capabilities (non-chamber sensors).
+    const newDynamicCapIds = new Set(
+      newSensors.filter(s => s.capabilityId.startsWith('measure_temperature.')).map(s => s.capabilityId)
+    );
+    for (const sensor of newSensors.filter(s => s.capabilityId.startsWith('measure_temperature.'))) {
       try {
         if (!this.hasCapability(sensor.capabilityId)) {
           this.log(`Discovered new sensor: "${sensor.objectName}" → ${sensor.capabilityId}`);
@@ -294,9 +355,8 @@ class MoonrakerDevice extends Homey.Device {
       }
     }
 
-    const newCapIds = new Set(newSensors.map(s => s.capabilityId));
     for (const oldCap of knownExtraCaps) {
-      if (!newCapIds.has(oldCap)) {
+      if (!newDynamicCapIds.has(oldCap)) {
         this.log(`Removing stale sensor capability: ${oldCap}`);
         await this.removeCapability(oldCap).catch(() => {});
       }
@@ -530,6 +590,9 @@ class MoonrakerDevice extends Homey.Device {
           }
           if (data.target !== undefined) {
             this._checkTempReached(sensor.capabilityId, sensor.label, data.temperature, data.target);
+            if (sensor.targetCapabilityId) {
+              this._setCap(sensor.targetCapabilityId, this._round1(data.target));
+            }
           }
           if (sensor.objectName.toLowerCase().includes('chamber') && data.temperature !== undefined) {
             this._checkChamberChanged(sensor.objectName, data.temperature, data.target);
