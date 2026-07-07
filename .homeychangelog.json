@@ -67,5 +67,8 @@
   },
   "2.1.0": {
     "en": "Fix WebSocket reconnection getting stuck after a Moonraker restart; add optional HTTP polling mode (disables the WebSocket, pulls data on a configurable interval) as an alternative connection method"
+  },
+  "2.2.0": {
+    "en": "Added http pooling switch over websocket and auto reconnection"
   }
 }
