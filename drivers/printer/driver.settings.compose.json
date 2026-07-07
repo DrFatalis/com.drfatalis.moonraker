@@ -20,5 +20,21 @@
     "label": { "en": "API Key" },
     "value": "",
     "hint": { "en": "Moonraker API key (leave empty if not required)" }
+  },
+  {
+    "id": "polling_enabled",
+    "type": "checkbox",
+    "label": { "en": "Use HTTP polling instead of WebSocket" },
+    "value": false,
+    "hint": { "en": "By default the device keeps a persistent WebSocket connection open to Moonraker. Enable this to disable the WebSocket and instead pull data over HTTP at a fixed interval." }
+  },
+  {
+    "id": "polling_interval",
+    "type": "number",
+    "label": { "en": "Polling interval (seconds)" },
+    "value": 5,
+    "min": 1,
+    "max": 3600,
+    "hint": { "en": "How often to pull data from Moonraker over HTTP. Only used when HTTP polling is enabled above." }
   }
 ]

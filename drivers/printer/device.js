@@ -38,6 +38,13 @@ class MoonrakerDevice extends Homey.Device {
     this._reconnectCount  = 0;
     this._extraSensors    = [];
 
+    // HTTP polling mode (alternative to the WebSocket connection)
+    this._pollingEnabled    = false;
+    this._pollingIntervalMs = 5000;
+    this._pollTimer         = null;
+    this._pollObjects       = null;
+    this._pollAvailable     = undefined;
+
     // Webcam state
     this._webcamVideos  = [];
     this._webcamImages  = [];
@@ -85,10 +92,14 @@ class MoonrakerDevice extends Homey.Device {
     await this._connect();
   }
 
-  async onSettings({ changedKeys }) {
-    if (changedKeys.some(k => ['address', 'port', 'api_key', 'url'].includes(k))) {
+  async onSettings({ newSettings, changedKeys }) {
+    if (changedKeys.some(k => ['address', 'port', 'api_key', 'url', 'polling_enabled', 'polling_interval'].includes(k))) {
+      // NB: this.getSettings() still returns the OLD settings at this point (Homey
+      // only commits them after this hook resolves) — pass newSettings through
+      // explicitly so the switch between WebSocket and HTTP polling (and any other
+      // changed parameter) takes effect immediately instead of on the next save.
       await this._disconnect();
-      await this._connect();
+      await this._connect(newSettings);
     }
   }
 
@@ -152,8 +163,8 @@ class MoonrakerDevice extends Homey.Device {
 
   // ─── Connect / disconnect ────────────────────────────────────────────────────
 
-  async _connect() {
-    const s = this.getSettings();
+  async _connect(settingsOverride) {
+    const s = settingsOverride || this.getSettings();
 
     // Support new settings (address/port) and legacy drfatalis settings (url: "host:port")
     let address = s.address || '';
@@ -170,6 +181,9 @@ class MoonrakerDevice extends Homey.Device {
       return;
     }
 
+    this._pollingEnabled   = !!s.polling_enabled;
+    this._pollingIntervalMs = Math.max(1, parseInt(s.polling_interval, 10) || 5) * 1000;
+
     this._client = new MoonrakerClient({
       address,
       port,
@@ -177,6 +191,14 @@ class MoonrakerDevice extends Homey.Device {
       logger:              this,
       onScheduleReconnect: () => this._scheduleReconnect(),
     });
+
+    if (this._pollingEnabled) {
+      // HTTP polling mode: the WebSocket is never opened, data is pulled on a
+      // fixed interval instead. Availability is driven per-tick in _pollTick().
+      this.log(`HTTP polling enabled — interval ${this._pollingIntervalMs / 1000}s`);
+      this._startPolling();
+      return;
+    }
 
     this._client.on('connected',          () => this._onConnected());
     this._client.on('disconnected',       () => this._onDisconnected());
@@ -195,6 +217,7 @@ class MoonrakerDevice extends Homey.Device {
 
   async _disconnect() {
     this._cancelReconnect();
+    this._cancelPolling();
     this._cleanupWebcams();
     if (this._client) {
       this._client.destroy();
@@ -216,6 +239,57 @@ class MoonrakerDevice extends Homey.Device {
     if (this._reconnectTimer) {
       this.homey.clearTimeout(this._reconnectTimer);
       this._reconnectTimer = null;
+    }
+  }
+
+  // ─── HTTP polling mode ────────────────────────────────────────────────────────
+
+  _startPolling() {
+    this._pollObjects   = null;
+    this._pollAvailable = undefined;
+    this._pollTick();
+    this._pollTimer = this.homey.setInterval(() => this._pollTick(), this._pollingIntervalMs);
+  }
+
+  _cancelPolling() {
+    if (this._pollTimer) {
+      this.homey.clearInterval(this._pollTimer);
+      this._pollTimer = null;
+    }
+    this._pollObjects   = null;
+    this._pollAvailable = undefined;
+  }
+
+  async _pollTick() {
+    if (!this._client) return;
+    try {
+      if (!this._pollObjects) {
+        await this._discoverExtraSensors();
+        this._pollObjects = await this._buildQueryObjects();
+        if (!this._webcamsInited) {
+          this._webcamsInited = true;
+          await this._initWebcams();
+        }
+      }
+
+      const result = await this._client.httpQueryObjects(this._pollObjects);
+      const status = result?.status || result;
+      if (status) this._processStatus(status);
+
+      if (this._pollAvailable !== true) {
+        this._pollAvailable = true;
+        this.setAvailable().catch(() => {});
+      }
+    } catch (err) {
+      this.error('Polling tick failed:', err.message);
+      // Rediscover on the next successful tick in case Moonraker restarted with
+      // a different set of printer objects.
+      this._pollObjects = null;
+      if (this._pollAvailable !== false) {
+        this._pollAvailable = false;
+        this.setCapabilityValue('printer_status', 'disconnected').catch(() => {});
+        this.setUnavailable('Disconnected from Moonraker').catch(() => {});
+      }
     }
   }
 
@@ -256,7 +330,9 @@ class MoonrakerDevice extends Homey.Device {
   async _discoverExtraSensors() {
     let allObjects;
     try {
-      allObjects = await this._client.listObjects();
+      allObjects = this._pollingEnabled
+        ? await this._client.httpListObjects()
+        : await this._client.listObjects();
     } catch (err) {
       this.error('listObjects failed:', err.message);
       return;
@@ -534,15 +610,22 @@ class MoonrakerDevice extends Homey.Device {
 
   // ─── Subscription ─────────────────────────────────────────────────────────────
 
-  async _subscribe() {
+  async _buildQueryObjects() {
     const objects = { ...CORE_OBJECTS };
     for (const s of this._extraSensors) objects[s.objectName] = null;
     if (this._client) {
-      const allObjects = await this._client.listObjects().catch(() => []);
+      const allObjects = this._pollingEnabled
+        ? await this._client.httpListObjects().catch(() => [])
+        : await this._client.listObjects().catch(() => []);
       for (const o of allObjects) {
         if (/^extruder[1-9]\d*$/.test(o)) objects[o] = null;
       }
     }
+    return objects;
+  }
+
+  async _subscribe() {
+    const objects = await this._buildQueryObjects();
     this.log('Subscribing to:', Object.keys(objects).join(', '));
     const snap = await this._client.subscribe(objects);
     if (snap?.status) {

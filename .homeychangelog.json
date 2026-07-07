@@ -64,5 +64,8 @@
   },
   "2.0.7": {
     "en": "Add chamber target temp with unique icon"
+  },
+  "2.1.0": {
+    "en": "Fix WebSocket reconnection getting stuck after a Moonraker restart; add optional HTTP polling mode (disables the WebSocket, pulls data on a configurable interval) as an alternative connection method"
   }
 }
